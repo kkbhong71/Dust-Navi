@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>😷 우리 동네 미세먼지 외출 지수 - 먼지내비</title>
+    <!-- Chart.js 라이브러리 불러오기 (그래프 그리기 용도) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* [1] 기본 스타일 설정 (디자인) - 최적화된 프리미엄 UI */
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --bg-gradient: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #2d3436;
+            --text-sub: #636e72;
+            --primary: #6c5ce7;
+            --primary-hover: #5849c4;
+            
+            /* 미세먼지 단계별 테마 색상 (더 세련된 파스텔 톤) */
+            --color-good: #74b9ff;   /* 파랑 */
+            --color-normal: #55efc4; /* 초록 */
+            --color-bad: #fab1a0;    /* 주황 */
+            --color-worst: #ff7675;  /* 빨강 */
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 인트로 화면 스타일 */
+        .intro-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+
+        .intro-content {
+            text-align: center;
+            animation: slideUpFade 1s ease forwards;
+        }
+
+        .intro-logo {
+            font-size: 6rem;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .intro-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            margin: 0 0 15px 0;
+            color: #1e272e;
+            letter-spacing: -3px;
+            /* 이미지와 같은 강력한 흰색 글로우 효과 */
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 1),
+                0 0 20px rgba(255, 255, 255, 0.9),
+                0 0 40px rgba(255, 255, 255, 0.8),
+                0 5px 15px rgba(255, 255, 255, 1);
+        }
+
+        .intro-subtitle {
+            font-size: 1.2rem;
+            color: #636e72;
+            margin-bottom: 40px;
+            font-weight: 500;
+        }
+
+        .start-btn {
+            padding: 16px 45px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: white;
+            background: var(--primary);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(108, 92, 231, 0.4);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .start-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(108, 92, 231, 0.5);
+        }
+
+        /* 메인 앱 컨테이너 (글래스모피즘 효과) */
+        .app-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            width: 100%;
+            max-width: 480px;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+            padding: 40px 30px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            display: none; /* 인트로 끝난 후 표시됨 */
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .app-container.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 25px;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* 검색 영역 */
+        .search-box {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.9);
+            border-radius: 18px;
+            font-size: 1.05rem;
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 4px 10px rgba(0,0,0,0.04);
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 4px 15px rgba(108, 92, 231, 0.15);
+        }
+
+        button.search-btn {
+            padding: 0 25px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 18px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        button.search-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        button.search-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 결과 카드 영역 */
+        .result-card {
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: 26px;
+            padding: 35px 20px;
+            margin-bottom: 25px;
+            display: none;
+            animation: slideUpFade 0.6s ease forwards;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.04);
+        }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .icon-display {
+            font-size: 5.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .status-text {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .value-text {
+            font-size: 1.1rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .value-text span {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--text-main);
+        }
+
+        .advice-msg {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 18px;
+            font-weight: 700;
+            line-height: 1.6;
+            color: var(--text-main);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* 측정소 위치 뱃지 */
+        .station-label {
+            display: inline-block;
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        /* 차트 영역 */
+        .chart-container {
+            width: 100%;
+            height: 230px;
+            display: none;
+            background: rgba(255,255,255,0.5);
+            border-radius: 24px;
+            padding: 15px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .loading-text {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 1.1rem;
+            display: none;
+            margin: 20px 0;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.5; transform: scale(0.98); }
+        }
+    </style>
+</head>
+</head>
+<body>
+
+    <!-- [새로 추가된 기능] 임팩트 있는 인트로 화면 -->
+    <div class="intro-screen" id="introScreen">
+        <div class="intro-content">
+            <div class="intro-logo">🌍</div>
+            <h1 class="intro-title">먼지내비<br><span style="font-size: 2.5rem; font-weight: 800; letter-spacing: -1px;">(Dust-Navi)</span></h1>
+            <p class="intro-subtitle">우리 동네 미세먼지 안심 외출 가이드</p>
+            <button class="start-btn" id="startBtn">시작하기</button>
+        </div>
+    </div>
+
+    <div class="app-container" id="appContainer">
+        <h1>😷 먼지내비 (Dust-Navi)</h1>
+        
+        <div class="search-box">
+            <!-- 동 이름을 입력받는 입력창 (측정소 API 연동을 위해 동/읍/면으로 변경) -->
+            <input type="text" id="stationInput" placeholder="동/읍/면 입력 (예: 역삼동, 연남동)" value="역삼동">
+            <button class="search-btn" id="searchBtn">조회</button>
+        </div>
+
+        <p id="loadingText" class="loading-text">공기 상태를 확인하고 있어요! 잠시만요... ⏳</p>
+
+        <!-- 분석 결과가 표시될 카드 -->
+        <div class="result-card" id="resultCard">
+            <div class="station-label" id="stationLabel">📍 관측소 위치</div>
+            <div class="icon-display" id="dustIcon">😀</div>
+            <div class="status-text" id="dustStatus">상태 표시</div>
+            <div class="value-text">
+                미세먼지(PM10): <span id="pm10Value">0</span> µg/m³
+            </div>
+            <div class="advice-msg" id="dustAdvice">외출 조언이 여기에 표시됩니다.</div>
+        </div>
+
+        <!-- 막대 그래프가 그려질 캔버스 영역 -->
+        <div class="chart-container" id="chartContainer">
+            <canvas id="dustChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        /* * ==========================================
+         * 🚨 공공데이터 API 키 설정 구역
+         * 공공데이터포털(data.go.kr)에서 발급받은 '한국환경공단_에어코리아_대기오염정보' 
+         * API 인증키를 아래 변수에 따옴표 안에 넣어주세요! (Encoding 키 사용 권장)
+         * 키가 없거나 호출이 실패하면 자동으로 가상 데이터(Mock)가 작동합니다.
+         * ==========================================
+         */
+        const API_KEY = '177368c2a89b904d21db8ead8aaef990526cd6a7ab04767765a00cfa9d15e6fa'; // 여기에 여러분의 API 키를 입력하세요!
+
+        // [2] 웹 페이지의 HTML 요소(태그)들을 자바스크립트로 가져옵니다.
+        const searchBtn = document.getElementById('searchBtn');
+        const stationInput = document.getElementById('stationInput');
+        const resultCard = document.getElementById('resultCard');
+        const stationLabel = document.getElementById('stationLabel');
+        const dustIcon = document.getElementById('dustIcon');
+        const dustStatus = document.getElementById('dustStatus');
+        const pm10Text = document.getElementById('pm10Value');
+        const dustAdvice = document.getElementById('dustAdvice');
+        const loadingText = document.getElementById('loadingText');
+        const chartContainer = document.getElementById('chartContainer');
+        const ctx = document.getElementById('dustChart').getContext('2d');
+        const appContainer = document.getElementById('appContainer');
+        const introScreen = document.getElementById('introScreen');
+        const startBtn = document.getElementById('startBtn');
+        
+        let myChart = null; // 차트를 저장할 변수
+
+        // [새로 추가된 기능] 인트로 화면에서 '시작하기' 버튼 클릭 시 이벤트
+        startBtn.addEventListener('click', () => {
+            // 인트로 화면 서서히 사라지게 하기
+            introScreen.style.opacity = '0';
+            introScreen.style.visibility = 'hidden';
+            
+            // 0.5초 뒤에 메인 앱 화면 나타나게 하기
+            setTimeout(() => {
+                appContainer.style.display = 'block';
+                // 약간의 지연 후 애니메이션 클래스 추가 (부드러운 바운스 등장)
+                setTimeout(() => {
+                    appContainer.classList.add('active');
+                }, 50);
+            }, 500); // CSS 트랜지션 시간과 맞춤
+        });
+
+        // [3] '조회' 버튼을 클릭하면 fetchData 함수가 실행되도록 연결합니다.
+        searchBtn.addEventListener('click', () => {
+            const stationName = stationInput.value.trim();
+            if (stationName === "") {
+                alert("측정소(동네) 이름을 입력해주세요!");
+                return;
+            }
+            fetchData(stationName);
+        });
+
+        // 엔터키를 눌러도 조회가 되도록 설정
+        stationInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') fetchData(stationInput.value.trim());
+        });
+
+        // [4] 고도화된 핵심 기능: 3단계 API 통신 (동 이름 -> TM좌표 -> 근접 측정소 -> 미세먼지 수치)
+        // 학습 포인트: 2개의 다른 API(측정소정보, 대기오염정보)를 조합해서 원하는 결과를 얻어냅니다!
+        async function fetchData(locationName) {
+            // 로딩 화면 보여주기
+            loadingText.style.display = 'block';
+            loadingText.innerText = "📍 동네 위치를 찾고 있어요...";
+            resultCard.style.display = 'none';
+            chartContainer.style.display = 'none';
+
+            let pm10 = 0;
+            let pm25 = 0;
+            let foundStationName = "가상 측정소";
+
+            try {
+                if (!API_KEY || API_KEY === '') throw new Error("API 키가 없습니다.");
+
+                // Step 1: 동/읍/면 이름으로 TM좌표 조회 (측정소정보 API 사용)
+                loadingText.innerText = "📍 동네 위치(TM좌표)를 찾고 있어요...";
+                const tmUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt?serviceKey=${API_KEY}&returnType=json&umdName=${encodeURIComponent(locationName)}&numOfRows=1&pageNo=1`;
+                const tmRes = await fetch(tmUrl);
+                const tmData = await tmRes.json();
+                
+                if (!tmData.response.body.items || tmData.response.body.items.length === 0) {
+                    throw new Error("동네 이름을 찾을 수 없어요. '동/읍/면' 단위로 입력해주세요! (예: 역삼동)");
+                }
+                const tmX = tmData.response.body.items[0].tmX;
+                const tmY = tmData.response.body.items[0].tmY;
+
+                // Step 2: TM좌표로 가장 가까운 측정소 찾기 (측정소정보 API 사용)
+                loadingText.innerText = "🏢 가장 가까운 관측소를 찾고 있어요...";
+                const nearbyUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${API_KEY}&returnType=json&tmX=${tmX}&tmY=${tmY}`;
+                const nearbyRes = await fetch(nearbyUrl);
+                const nearbyData = await nearbyRes.json();
+                
+                if (!nearbyData.response.body.items || nearbyData.response.body.items.length === 0) {
+                    throw new Error("근처에 미세먼지 측정소가 없습니다.");
+                }
+                foundStationName = nearbyData.response.body.items[0].stationName;
+
+                // Step 3: 찾은 측정소 이름으로 미세먼지 정보 조회 (대기오염정보 API 사용)
+                loadingText.innerText = `😷 '${foundStationName}' 관측소의 공기 상태를 확인 중이에요...`;
+                const dustUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${API_KEY}&returnType=json&numOfRows=1&pageNo=1&stationName=${encodeURIComponent(foundStationName)}&dataTerm=DAILY&ver=1.3`;
+                const dustRes = await fetch(dustUrl);
+                const dustData = await dustRes.json();
+
+                if (dustData.response.header.resultCode !== "00") {
+                    throw new Error("데이터를 불러오지 못했습니다.");
+                }
+
+                const item = dustData.response.body.items[0];
+                if(!item) throw new Error("해당 측정소의 데이터가 없습니다.");
+
+                pm10 = parseInt(item.pm10Value) || 0; 
+                pm25 = parseInt(item.pm25Value) || 0;
+
+                console.log("3단계 API 연동 성공!", foundStationName, pm10, pm25);
+
+            } catch (error) {
+                console.warn("API 호출 실패. 가상 데이터를 사용합니다.", error.message);
+                const mockData = generateMockData();
+                pm10 = mockData.pm10;
+                pm25 = mockData.pm25;
+                foundStationName = locationName + " (가상)";
+                
+                // 에러 메시지 알림 (키가 없을 때는 생략)
+                if(error.message !== "API 키가 없습니다.") {
+                    alert(error.message + "\n\n(시연용 가상 데이터를 표시합니다.)");
+                }
+            }
+
+            // 로딩 화면 끄고 결과 보여주기
+            loadingText.style.display = 'none';
+            updateUI(pm10, pm25, foundStationName);
+        }
+
+        // [5] 가상 데이터 생성 함수 (수학의 Random 함수 활용)
+        // [5] 가상 데이터 생성 함수 (수학의 Random 함수 활용)
+        function generateMockData() {
+            // Math.random()은 0~1 사이의 랜덤한 소수를 만듭니다.
+            return {
+                pm10: Math.floor(Math.random() * 200) + 10,  // 10 ~ 210 사이 랜덤
+                pm25: Math.floor(Math.random() * 100) + 5    // 5 ~ 105 사이 랜덤
+            };
+        }
+
+        // [6] 데이터 분석 및 화면 업데이트 로직
+        function updateUI(pm10, pm25, stationName) {
+            // 미세먼지 수치에 따라 등급 판별하기
+            const levelInfo = getDustLevelInfo(pm10);
+
+            // 1. 화면에 글자와 아이콘 넣기
+            stationLabel.innerText = `📍 ${stationName} 관측소 기준`;
+            pm10Text.innerText = pm10;
+            dustStatus.innerText = levelInfo.title;
+            dustStatus.style.color = levelInfo.color;
+            dustIcon.innerText = levelInfo.icon;
+            dustAdvice.innerText = levelInfo.advice;
+            dustAdvice.style.color = levelInfo.color;
+
+            // [학생 챌린지 힌트] 전체 배경색을 바꾸려면 아래 주석을 풀어보세요! (현재는 그라데이션 배경 사용 중)
+            // document.body.style.background = levelInfo.color;
+
+            // 2. 숨겨뒀던 결과 카드 보여주기
+            resultCard.style.display = 'block';
+            chartContainer.style.display = 'block';
+
+            // 3. 차트(그래프) 그리기
+            drawChart(pm10, pm25, levelInfo.color);
+        }
+
+        // [7] 💡 JavaScript 조건문 (if-else) 학습 포인트
+        // 미세먼지 수치(PM10) 기준에 따라 4단계로 나누는 함수입니다.
+        function getDustLevelInfo(value) {
+            if (value <= 30) {
+                return { 
+                    title: "매우 좋음", 
+                    icon: "😆", 
+                    color: "var(--color-good)", 
+                    advice: "공기가 너무 맑아요! 창문을 열고 환기를 시켜보세요. 야외 활동하기 완벽한 날씨입니다."
+                };
+            } else if (value <= 80) {
+                return { 
+                    title: "보통", 
+                    icon: "🙂", 
+                    color: "var(--color-normal)", 
+                    advice: "외출하기 무난한 날이에요. 평소처럼 야외 활동을 즐기셔도 좋습니다."
+                };
+            } else if (value <= 150) {
+                return { 
+                    title: "나쁨", 
+                    icon: "😷", 
+                    color: "var(--color-bad)", 
+                    advice: "공기가 탁해요. 가급적 외출을 줄이고, 나갈 때는 꼭 KF94 마스크를 챙기세요!"
+                };
+            } else {
+                return { 
+                    title: "매우 나쁨", 
+                    icon: "☠️", 
+                    color: "var(--color-worst)", 
+                    advice: "위험해요! 절대 밖에 나가지 마세요. 창문을 꼭 닫고 실내에 머무르세요."
+                };
+            }
+        }
+
+        // [8] Chart.js를 이용해 시각적인 막대 그래프 그리기
+        function drawChart(pm10, pm25, mainColor) {
+            // 이미 그려진 그래프가 있다면 지우고 새로 그립니다.
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            // 차트 디자인 최적화 (프리미엄 룩)
+            Chart.defaults.font.family = "'Pretendard', -apple-system, sans-serif";
+            Chart.defaults.color = '#636e72';
+
+            myChart = new Chart(ctx, {
+                type: 'bar', // 막대 그래프
+                data: {
+                    labels: ['미세먼지 (PM10)', '초미세먼지 (PM2.5)'],
+                    datasets: [{
+                        label: '먼지 농도 (µg/m³)',
+                        data: [pm10, pm25],
+                        backgroundColor: [
+                            mainColor,      // PM10은 상태 색상 적용
+                            'rgba(178, 190, 195, 0.6)' // PM2.5는 부드러운 회색
+                        ],
+                        borderRadius: 12,    // 막대 모서리 더 둥글게
+                        barThickness: 45     // 막대 두께
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }, // 상단 범례 숨기기
+                        tooltip: {
+                            backgroundColor: 'rgba(45, 52, 54, 0.9)',
+                            padding: 12,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 14 },
+                            cornerRadius: 8
+                        }
+                    },
+                    animation: {
+                        duration: 1200,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        /*
+         * ==========================================
+         * 👨‍💻 [학생용 챌린지 - 스스로 도전해보세요!]
+         * ==========================================
+         * 미션 1. 배경색 마법사: 현재 배경색은 회색(f0f4f8)입니다. 미세먼지 단계에 따라 앱 배경색(body) 전체가 변하도록 updateUI 함수 안의 주석을 해제하고 테스트해보세요!
+         * 미션 2. 이모지 변경: getDustLevelInfo 함수를 찾아서, 각 단계별 아이콘(icon)을 여러분이 좋아하는 다른 이모티콘으로 바꿔보세요.
+         * 미션 3. (고급) 초미세먼지 방어: 초미세먼지(pm25)가 35를 넘으면, 미세먼지(pm10)가 좋아도 상태를 '나쁨'으로 바꾸도록 코드를 수정할 수 있을까요?
+         * ==========================================
+         */
+    </script>
+</body>
+</html>
