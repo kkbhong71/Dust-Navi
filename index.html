@@ -353,7 +353,7 @@
          * 키가 없거나 호출이 실패하면 자동으로 가상 데이터(Mock)가 작동합니다.
          * ==========================================
          */
-        const API_KEY = '177368c2a89b904d21db8ead8aaef990526cd6a7ab04767765a00cfa9d15e6fa'; // 여기에 여러분의 API 키를 입력하세요!
+        const API_KEY = ''; // 여기에 여러분의 API 키를 입력하세요!
 
         // [2] 웹 페이지의 HTML 요소(태그)들을 자바스크립트로 가져옵니다.
         const searchBtn = document.getElementById('searchBtn');
@@ -422,7 +422,7 @@
 
                 // Step 1: 동/읍/면 이름으로 TM좌표 조회 (측정소정보 API 사용)
                 loadingText.innerText = "📍 동네 위치(TM좌표)를 찾고 있어요...";
-                const tmUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt?serviceKey=${API_KEY}&returnType=json&umdName=${encodeURIComponent(locationName)}&numOfRows=1&pageNo=1`;
+                const tmUrl = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt?serviceKey=${API_KEY}&returnType=json&umdName=${encodeURIComponent(locationName)}&numOfRows=1&pageNo=1`;
                 const tmRes = await fetch(tmUrl);
                 const tmData = await tmRes.json();
                 
@@ -434,7 +434,7 @@
 
                 // Step 2: TM좌표로 가장 가까운 측정소 찾기 (측정소정보 API 사용)
                 loadingText.innerText = "🏢 가장 가까운 관측소를 찾고 있어요...";
-                const nearbyUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${API_KEY}&returnType=json&tmX=${tmX}&tmY=${tmY}`;
+                const nearbyUrl = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${API_KEY}&returnType=json&tmX=${tmX}&tmY=${tmY}`;
                 const nearbyRes = await fetch(nearbyUrl);
                 const nearbyData = await nearbyRes.json();
                 
@@ -445,7 +445,7 @@
 
                 // Step 3: 찾은 측정소 이름으로 미세먼지 정보 조회 (대기오염정보 API 사용)
                 loadingText.innerText = `😷 '${foundStationName}' 관측소의 공기 상태를 확인 중이에요...`;
-                const dustUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${API_KEY}&returnType=json&numOfRows=1&pageNo=1&stationName=${encodeURIComponent(foundStationName)}&dataTerm=DAILY&ver=1.3`;
+                const dustUrl = `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${API_KEY}&returnType=json&numOfRows=1&pageNo=1&stationName=${encodeURIComponent(foundStationName)}&dataTerm=DAILY&ver=1.3`;
                 const dustRes = await fetch(dustUrl);
                 const dustData = await dustRes.json();
 
