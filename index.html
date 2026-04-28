@@ -307,11 +307,32 @@
         try{
             const j=await(await fetch(buildUrl(name,1))).json();
             if(j.response?.header?.resultCode==="00"&&j.response?.body?.items?.length>0){
+                // ✅ 측정소 좌표 조회 → 지도 이동!
+                await lookupStationLocation(name);
                 await fetchStationData(name);
                 return true;
             }
         }catch(e){}
         return false;
+    }
+
+    /* ============================================================
+     * 🗺️ [핵심 수정] 측정소명 → 위경도 좌표 조회 → 지도 이동
+     * ============================================================
+     * getMsrstnList API로 측정소의 WGS84 좌표(dmX=경도, dmY=위도)를
+     * 가져와서 지도를 해당 위치로 이동시킵니다.
+     * ============================================================ */
+    async function lookupStationLocation(stationName){
+        try{
+            const url=`https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getMsrstnList?serviceKey=${API_KEY}&returnType=json&stationName=${encodeURIComponent(stationName)}&pageNo=1&numOfRows=1`;
+            const j=await(await fetch(url)).json();
+            const items=j.response?.body?.items;
+            if(items?.length>0){
+                const lat=parseFloat(items[0].dmY); // dmY = 위도
+                const lng=parseFloat(items[0].dmX); // dmX = 경도
+                if(lat&&lng) moveMapTo(lat,lng,stationName);
+            }
+        }catch(e){console.log("측정소 좌표 조회 실패:",e.message);}
     }
 
     /* 동/읍/면 TM좌표 검색 → 성공 시 true (+ 지도 이동) */
