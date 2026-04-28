@@ -213,7 +213,7 @@
     /* 🗺️ 지도 - 밝은 타일 (Voyager) */
     function initMap(){
         map=L.map('map',{center:[36.5,127.5],zoom:7,attributionControl:false});
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:18,subdomains:'abcd'}).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
         map.on('click',e=>{placeMarker(e.latlng.lat,e.latlng.lng);fetchByCoords(e.latlng.lat,e.latlng.lng);});
     }
     function placeMarker(lat,lng){if(marker)map.removeLayer(marker);marker=L.circleMarker([lat,lng],{radius:12,fillColor:'#6366f1',fillOpacity:.85,color:'#fff',weight:3}).addTo(map);}
