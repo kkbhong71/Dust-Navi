@@ -9,157 +9,139 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <!-- favicon 404 방지 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='28' font-size='28'>😷</text></svg>">
     <style>
-        :root {
-            --bg-main: #0f172a; --bg-card: rgba(30, 41, 69, 0.85); --bg-glass: rgba(255,255,255,0.06);
-            --border-glass: rgba(255,255,255,0.1); --text-main: #e2e8f0; --text-sub: #94a3b8;
-            --text-accent: #f8fafc; --accent: #38bdf8; --accent-hover: #7dd3fc;
-            --dust-good: #38bdf8; --dust-normal: #4ade80; --dust-bad: #fb923c; --dust-worst: #f87171;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-main); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
-        body::before, body::after { content: ''; position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.2; z-index: 0; pointer-events: none; }
-        body::before { width: 500px; height: 500px; background: #6366f1; top: -150px; left: -100px; }
-        body::after { width: 400px; height: 400px; background: #06b6d4; bottom: -100px; right: -80px; }
+        :root{--bg-main:#0f172a;--bg-card:rgba(30,41,69,.85);--bg-glass:rgba(255,255,255,.06);--border-glass:rgba(255,255,255,.1);--text-main:#e2e8f0;--text-sub:#94a3b8;--text-accent:#f8fafc;--accent:#38bdf8;--accent-hover:#7dd3fc;--dust-good:#38bdf8;--dust-normal:#4ade80;--dust-bad:#fb923c;--dust-worst:#f87171}
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-main);color:var(--text-main);min-height:100vh;overflow-x:hidden}
+        body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(120px);opacity:.2;z-index:0;pointer-events:none}
+        body::before{width:500px;height:500px;background:#6366f1;top:-150px;left:-100px}
+        body::after{width:400px;height:400px;background:#06b6d4;bottom:-100px;right:-80px}
 
-        .intro-screen { position: fixed; inset: 0; background: var(--bg-main); display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.7s ease, visibility 0.7s ease; }
-        .intro-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        .intro-content { text-align: center; animation: introSlide 0.8s ease forwards; }
-        @keyframes introSlide { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .intro-logo { font-size: 5rem; animation: floatY 3s ease-in-out infinite; filter: drop-shadow(0 0 30px rgba(56,189,248,0.5)); }
-        @keyframes floatY { 0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)} }
-        .intro-title { font-size: 3.4rem; font-weight: 900; color: #f8fafc; letter-spacing: -1px; margin: 12px 0 4px; text-shadow: 0 0 40px rgba(56,189,248,0.35), 0 2px 8px rgba(0,0,0,0.3); }
-        .intro-sub-title { font-size: 1.2rem; font-weight: 700; color: var(--accent); letter-spacing: 4px; margin-bottom: 6px; }
-        .intro-desc { color: var(--text-sub); font-size: 0.95rem; margin-bottom: 36px; font-weight: 500; }
-        .start-btn { padding: 15px 48px; font-size: 1.05rem; font-weight: 700; color: var(--bg-main); background: var(--accent); border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 0 30px rgba(56,189,248,0.35); transition: all 0.25s ease; }
-        .start-btn:hover { background: var(--accent-hover); transform: translateY(-3px) scale(1.03); }
+        .intro-screen{position:fixed;inset:0;background:var(--bg-main);display:flex;justify-content:center;align-items:center;z-index:9999;transition:opacity .7s,visibility .7s}
+        .intro-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+        .intro-content{text-align:center;animation:introSlide .8s ease forwards}
+        @keyframes introSlide{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .intro-logo{font-size:5rem;animation:floatY 3s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(56,189,248,.5))}
+        @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+        .intro-title{font-size:3.4rem;font-weight:900;color:#f8fafc;letter-spacing:-1px;margin:12px 0 4px;text-shadow:0 0 40px rgba(56,189,248,.35),0 2px 8px rgba(0,0,0,.3)}
+        .intro-sub-title{font-size:1.2rem;font-weight:700;color:var(--accent);letter-spacing:4px;margin-bottom:6px}
+        .intro-desc{color:var(--text-sub);font-size:.95rem;margin-bottom:36px;font-weight:500}
+        .start-btn{padding:15px 48px;font-size:1.05rem;font-weight:700;color:var(--bg-main);background:var(--accent);border:none;border-radius:50px;cursor:pointer;box-shadow:0 0 30px rgba(56,189,248,.35);transition:all .25s}
+        .start-btn:hover{background:var(--accent-hover);transform:translateY(-3px) scale(1.03)}
 
-        .app-wrap { position: relative; z-index: 1; max-width: 540px; margin: 0 auto; padding: 24px 16px 40px; display: none; }
-        .app-wrap.active { display: block; animation: appIn 0.6s cubic-bezier(.22,1,.36,1) forwards; }
-        @keyframes appIn { from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)} }
-        .app-header { text-align: center; margin-bottom: 22px; }
-        .app-header h1 { font-size: 1.5rem; font-weight: 700; color: var(--text-accent); }
-        .app-header p { color: var(--text-sub); font-size: 0.8rem; margin-top: 4px; }
+        .app-wrap{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:24px 16px 40px;display:none}
+        .app-wrap.active{display:block;animation:appIn .6s cubic-bezier(.22,1,.36,1) forwards}
+        @keyframes appIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        .app-header{text-align:center;margin-bottom:22px}
+        .app-header h1{font-size:1.5rem;font-weight:700;color:var(--text-accent)}
+        .app-header p{color:var(--text-sub);font-size:.8rem;margin-top:4px}
 
-        .search-bar { display: flex; gap: 10px; margin-bottom: 14px; }
-        .search-bar input { flex: 1; padding: 13px 16px; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 14px; color: var(--text-main); font-size: 0.92rem; outline: none; transition: border-color 0.2s; }
-        .search-bar input::placeholder { color: var(--text-sub); }
-        .search-bar input:focus { border-color: var(--accent); }
-        .btn-pri { padding: 0 20px; background: var(--accent); color: var(--bg-main); border: none; border-radius: 14px; font-size: 0.92rem; font-weight: 700; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-        .btn-pri:hover { background: var(--accent-hover); }
+        .search-bar{display:flex;gap:10px;margin-bottom:10px}
+        .search-bar input{flex:1;padding:13px 16px;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:14px;color:var(--text-main);font-size:.92rem;outline:none;transition:border-color .2s}
+        .search-bar input::placeholder{color:var(--text-sub)}
+        .search-bar input:focus{border-color:var(--accent)}
+        .btn-pri{padding:0 20px;background:var(--accent);color:var(--bg-main);border:none;border-radius:14px;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+        .btn-pri:hover{background:var(--accent-hover)}
+        .search-hint{font-size:.72rem;color:var(--text-sub);margin-bottom:14px;padding:0 4px}
 
-        .map-section { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 20px; overflow: hidden; margin-bottom: 18px; }
-        .map-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; }
-        .map-header span { font-size: 0.82rem; font-weight: 700; color: var(--text-sub); }
-        .btn-sm { padding: 5px 12px; background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.25); border-radius: 10px; color: var(--accent); font-size: 0.76rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .btn-sm:hover { background: rgba(56,189,248,0.25); }
-        #map { width: 100%; height: 260px; }
-        .map-hint { padding: 7px 14px; font-size: 0.72rem; color: var(--text-sub); text-align: center; background: rgba(0,0,0,0.15); }
+        .map-section{background:var(--bg-card);border:1px solid var(--border-glass);border-radius:20px;overflow:hidden;margin-bottom:18px}
+        .map-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px}
+        .map-header span{font-size:.82rem;font-weight:700;color:var(--text-sub)}
+        .btn-sm{padding:5px 12px;background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.25);border-radius:10px;color:var(--accent);font-size:.76rem;font-weight:700;cursor:pointer;transition:all .2s}
+        .btn-sm:hover{background:rgba(56,189,248,.25)}
+        #map{width:100%;height:260px}
+        .map-hint{padding:7px 14px;font-size:.72rem;color:var(--text-sub);text-align:center;background:rgba(0,0,0,.1)}
+        .leaflet-popup-content-wrapper{background:#1e293b!important;color:#e2e8f0!important;border-radius:12px!important;box-shadow:0 8px 24px rgba(0,0,0,.5)!important}
+        .leaflet-popup-tip{background:#1e293b!important}
+        .leaflet-popup-content{margin:10px 14px!important;font-family:'Noto Sans KR'!important;font-size:13px!important;line-height:1.5!important}
 
-        /* Leaflet 팝업 스타일 */
-        .leaflet-popup-content-wrapper { background: #1e293b !important; color: #e2e8f0 !important; border-radius: 12px !important; box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important; }
-        .leaflet-popup-tip { background: #1e293b !important; }
-        .leaflet-popup-content { margin: 10px 14px !important; font-family: 'Noto Sans KR' !important; font-size: 13px !important; line-height: 1.5 !important; }
+        .card{background:var(--bg-card);backdrop-filter:blur(20px);border:1px solid var(--border-glass);border-radius:22px;padding:26px 20px;margin-bottom:18px;animation:cardIn .5s ease forwards}
+        @keyframes cardIn{from{opacity:0;transform:scale(.95) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .card-title{font-size:.92rem;font-weight:700;color:var(--accent);margin-bottom:14px}
 
-        .card { background: var(--bg-card); backdrop-filter: blur(20px); border: 1px solid var(--border-glass); border-radius: 22px; padding: 26px 20px; margin-bottom: 18px; animation: cardIn 0.5s ease forwards; }
-        @keyframes cardIn { from{opacity:0;transform:scale(0.95) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)} }
-        .card-title { font-size: 0.92rem; font-weight: 700; color: var(--accent); margin-bottom: 14px; }
+        .loading-bar{display:none;text-align:center;color:var(--accent);font-weight:700;margin:18px 0;animation:pulse 1.4s infinite}
+        @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+        .notice-banner{display:none;background:rgba(251,146,60,.12);border:1px solid rgba(251,146,60,.3);border-radius:12px;padding:11px 14px;margin-bottom:16px;font-size:.8rem;color:#fb923c;line-height:1.6}
+        /* 에러 배너 (빨간색) */
+        .error-banner{display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:12px;padding:11px 14px;margin-bottom:16px;font-size:.8rem;color:#f87171;line-height:1.6}
 
-        .loading-bar { display: none; text-align: center; color: var(--accent); font-weight: 700; margin: 18px 0; animation: pulse 1.4s infinite; }
-        @keyframes pulse { 0%,100%{opacity:.5}50%{opacity:1} }
-        .notice-banner { display: none; background: rgba(251,146,60,0.12); border: 1px solid rgba(251,146,60,0.3); border-radius: 12px; padding: 11px 14px; margin-bottom: 16px; font-size: 0.8rem; color: #fb923c; line-height: 1.6; }
+        .result-card{display:none;text-align:center}
+        .station-badge{display:inline-block;background:rgba(56,189,248,.12);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:700;margin-bottom:12px}
+        .result-icon{font-size:4.2rem;animation:bounceIcon .7s cubic-bezier(.22,1,.36,1);filter:drop-shadow(0 8px 20px rgba(0,0,0,.3))}
+        @keyframes bounceIcon{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+        .result-grade{font-size:1.7rem;font-weight:900;margin:6px 0 4px}
+        .result-values{display:flex;justify-content:center;gap:16px;margin:12px 0 14px}
+        .val-box{background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:14px;padding:10px 14px;min-width:110px}
+        .val-box .label{font-size:.7rem;color:var(--text-sub);margin-bottom:2px}
+        .val-box .number{font-size:1.3rem;font-weight:900}
+        .val-box .unit{font-size:.65rem;color:var(--text-sub)}
+        .advice-box{background:rgba(255,255,255,.04);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:13px 14px;text-align:left;font-weight:600;line-height:1.6;font-size:.85rem}
 
-        .result-card { display: none; text-align: center; }
-        .station-badge { display: inline-block; background: rgba(56,189,248,0.12); color: var(--accent); padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; margin-bottom: 12px; }
-        .result-icon { font-size: 4.2rem; animation: bounceIcon 0.7s cubic-bezier(.22,1,.36,1); filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3)); }
-        @keyframes bounceIcon { 0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)} }
-        .result-grade { font-size: 1.7rem; font-weight: 900; margin: 6px 0 4px; }
-        .result-values { display: flex; justify-content: center; gap: 16px; margin: 12px 0 14px; }
-        .val-box { background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 14px; padding: 10px 14px; min-width: 110px; }
-        .val-box .label { font-size: 0.7rem; color: var(--text-sub); margin-bottom: 2px; }
-        .val-box .number { font-size: 1.3rem; font-weight: 900; }
-        .val-box .unit { font-size: 0.65rem; color: var(--text-sub); }
-        .advice-box { background: rgba(255,255,255,0.04); border-left: 4px solid var(--accent); border-radius: 0 12px 12px 0; padding: 13px 14px; text-align: left; font-weight: 600; line-height: 1.6; font-size: 0.85rem; }
+        .detail-grid{display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+        .detail-item{background:var(--bg-card);border:1px solid var(--border-glass);border-radius:14px;padding:11px 6px;text-align:center}
+        .detail-item .d-label{font-size:.66rem;color:var(--text-sub);margin-bottom:2px}
+        .detail-item .d-value{font-size:1.05rem;font-weight:900}
+        .detail-item .d-grade{font-size:.68rem;font-weight:700;margin-top:2px;border-radius:8px;padding:2px 5px;display:inline-block}
 
-        .detail-grid { display: none; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 18px; }
-        .detail-item { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 14px; padding: 11px 6px; text-align: center; }
-        .detail-item .d-label { font-size: 0.66rem; color: var(--text-sub); margin-bottom: 2px; }
-        .detail-item .d-value { font-size: 1.05rem; font-weight: 900; }
-        .detail-item .d-grade { font-size: 0.68rem; font-weight: 700; margin-top: 2px; border-radius: 8px; padding: 2px 5px; display: inline-block; }
+        .chart-section{display:none}
+        .chart-wrap{position:relative;height:200px}
+        .chart-tabs{display:flex;gap:5px;margin-bottom:10px}
+        .chart-tabs button{flex:1;padding:7px 0;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:10px;color:var(--text-sub);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s}
+        .chart-tabs button.active{background:rgba(56,189,248,.15);border-color:var(--accent);color:var(--accent)}
+        .time-info{display:none;text-align:center;font-size:.74rem;color:var(--text-sub);margin-bottom:12px}
 
-        .chart-section { display: none; }
-        .chart-wrap { position: relative; height: 200px; }
-        .chart-tabs { display: flex; gap: 5px; margin-bottom: 10px; }
-        .chart-tabs button { flex: 1; padding: 7px 0; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 10px; color: var(--text-sub); font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .chart-tabs button.active { background: rgba(56,189,248,0.15); border-color: var(--accent); color: var(--accent); }
-        .time-info { display: none; text-align: center; font-size: 0.74rem; color: var(--text-sub); margin-bottom: 12px; }
+        .ds-lab{display:none;margin-top:8px}
+        .ds-lab-header{text-align:center;margin-bottom:16px;padding:14px;background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(6,182,212,.15));border-radius:16px;border:1px solid rgba(99,102,241,.2)}
+        .ds-lab-header h2{font-size:1.15rem;font-weight:900;color:var(--text-accent);margin-bottom:3px}
+        .ds-lab-header p{font-size:.76rem;color:var(--text-sub)}
+        .ds-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+        .ds-tabs button{flex:1;min-width:80px;padding:8px 4px;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:10px;color:var(--text-sub);font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s}
+        .ds-tabs button.active{background:rgba(56,189,248,.15);border-color:var(--accent);color:var(--accent)}
+        .ds-panel{display:none}
+        .ds-panel.active{display:block;animation:cardIn .4s ease forwards}
 
-        /* 데이터사이언스 분석실 */
-        .ds-lab { display: none; margin-top: 8px; }
-        .ds-lab-header { text-align: center; margin-bottom: 16px; padding: 14px; background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(6,182,212,0.15)); border-radius: 16px; border: 1px solid rgba(99,102,241,0.2); }
-        .ds-lab-header h2 { font-size: 1.15rem; font-weight: 900; color: var(--text-accent); margin-bottom: 3px; }
-        .ds-lab-header p { font-size: 0.76rem; color: var(--text-sub); }
-        .ds-tabs { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
-        .ds-tabs button { flex: 1; min-width: 80px; padding: 8px 4px; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 10px; color: var(--text-sub); font-size: 0.72rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .ds-tabs button.active { background: rgba(56,189,248,0.15); border-color: var(--accent); color: var(--accent); }
-        .ds-panel { display: none; }
-        .ds-panel.active { display: block; animation: cardIn 0.4s ease forwards; }
+        .data-table{width:100%;border-collapse:collapse;font-size:.72rem;margin-top:10px}
+        .data-table th{background:rgba(56,189,248,.1);color:var(--accent);padding:7px 6px;text-align:center;border-bottom:1px solid var(--border-glass);font-weight:700}
+        .data-table td{padding:6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.04)}
+        .data-table tr:hover td{background:rgba(255,255,255,.03)}
+        .raw-bad{color:var(--dust-worst);font-weight:700;background:rgba(248,113,113,.1);border-radius:4px;padding:1px 4px}
+        .raw-ok{color:var(--dust-good)}
+        .cleaned{color:var(--dust-normal);font-weight:700}
 
-        .data-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; margin-top: 10px; }
-        .data-table th { background: rgba(56,189,248,0.1); color: var(--accent); padding: 7px 6px; text-align: center; border-bottom: 1px solid var(--border-glass); font-weight: 700; }
-        .data-table td { padding: 6px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
-        .data-table tr:hover td { background: rgba(255,255,255,0.03); }
-        .raw-bad { color: var(--dust-worst); font-weight: 700; background: rgba(248,113,113,0.1); border-radius: 4px; padding: 1px 4px; }
-        .raw-ok { color: var(--dust-good); }
-        .cleaned { color: var(--dust-normal); font-weight: 700; }
+        .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+        .stat-card{background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:12px;padding:12px;text-align:center}
+        .stat-card .s-label{font-size:.68rem;color:var(--text-sub);margin-bottom:3px}
+        .stat-card .s-value{font-size:1.2rem;font-weight:900}
+        .stat-card .s-unit{font-size:.6rem;color:var(--text-sub)}
+        .time-analysis{margin-top:12px}
+        .time-bar{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+        .time-bar .t-label{font-size:.72rem;color:var(--text-sub);width:65px;text-align:right}
+        .time-bar .t-bar-wrap{flex:1;height:22px;background:var(--bg-glass);border-radius:6px;overflow:hidden}
+        .time-bar .t-bar{height:100%;border-radius:6px;transition:width .8s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:.65rem;font-weight:700;color:#fff}
 
-        .stat-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-top: 10px; }
-        .stat-card { background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 12px; padding: 12px; text-align: center; }
-        .stat-card .s-label { font-size: 0.68rem; color: var(--text-sub); margin-bottom: 3px; }
-        .stat-card .s-value { font-size: 1.2rem; font-weight: 900; }
-        .stat-card .s-unit { font-size: 0.6rem; color: var(--text-sub); }
-
-        .time-analysis { margin-top: 12px; }
-        .time-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-        .time-bar .t-label { font-size: 0.72rem; color: var(--text-sub); width: 65px; text-align: right; }
-        .time-bar .t-bar-wrap { flex: 1; height: 22px; background: var(--bg-glass); border-radius: 6px; overflow: hidden; }
-        .time-bar .t-bar { height: 100%; border-radius: 6px; transition: width 0.8s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; font-size: 0.65rem; font-weight: 700; color: #fff; }
-
-        .compare-inputs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-        .compare-inputs input { flex: 1; min-width: 100px; padding: 9px 12px; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 10px; color: var(--text-main); font-size: 0.82rem; outline: none; }
-        .compare-inputs input:focus { border-color: var(--accent); }
-        .compare-chart { position: relative; height: 200px; margin-top: 10px; }
-        .compare-status { font-size: 0.78rem; color: var(--text-sub); text-align: center; margin-top: 8px; }
-        .scatter-wrap { position: relative; height: 220px; margin-top: 10px; }
-        .corr-result { margin-top: 10px; padding: 12px; background: var(--bg-glass); border-radius: 12px; text-align: center; }
-        .corr-result .corr-val { font-size: 1.5rem; font-weight: 900; }
-        .corr-result .corr-desc { font-size: 0.76rem; color: var(--text-sub); margin-top: 3px; }
-
-        .report-area { margin-top: 10px; }
-        .report-area textarea { width: 100%; min-height: 80px; padding: 12px; background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: 12px; color: var(--text-main); font-size: 0.85rem; font-family: inherit; outline: none; resize: vertical; }
-        .report-area textarea:focus { border-color: var(--accent); }
-        .report-area textarea::placeholder { color: var(--text-sub); }
-        .report-preview { margin-top: 12px; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 14px; display: none; }
-        .report-preview h4 { font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
-        .report-summary { font-size: 0.78rem; line-height: 1.7; color: var(--text-main); }
-        .btn-row { display: flex; gap: 8px; margin-top: 10px; }
-        .btn-row button { flex: 1; }
-
-        .learn-box { margin-top: 12px; padding: 12px 14px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 12px; font-size: 0.76rem; line-height: 1.7; color: #a5b4fc; }
-        .learn-box b { color: #c4b5fd; }
-
-        .app-footer { text-align: center; padding-top: 16px; font-size: 0.7rem; color: rgba(148,163,184,0.5); line-height: 1.6; }
-
-        @media (max-width: 480px) {
-            .intro-title { font-size: 2.6rem; }
-            .intro-logo { font-size: 4rem; }
-            .val-box { min-width: 95px; padding: 8px 10px; }
-            .stat-grid { grid-template-columns: 1fr 1fr; }
-            .ds-tabs button { font-size: 0.66rem; padding: 7px 2px; }
-            #map { height: 220px; }
-        }
+        .compare-inputs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+        .compare-inputs input{flex:1;min-width:100px;padding:9px 12px;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:10px;color:var(--text-main);font-size:.82rem;outline:none}
+        .compare-inputs input:focus{border-color:var(--accent)}
+        .compare-chart{position:relative;height:200px;margin-top:10px}
+        .compare-status{font-size:.78rem;color:var(--text-sub);text-align:center;margin-top:8px}
+        .scatter-wrap{position:relative;height:220px;margin-top:10px}
+        .corr-result{margin-top:10px;padding:12px;background:var(--bg-glass);border-radius:12px;text-align:center}
+        .corr-result .corr-val{font-size:1.5rem;font-weight:900}
+        .corr-result .corr-desc{font-size:.76rem;color:var(--text-sub);margin-top:3px}
+        .report-area{margin-top:10px}
+        .report-area textarea{width:100%;min-height:80px;padding:12px;background:var(--bg-glass);border:1px solid var(--border-glass);border-radius:12px;color:var(--text-main);font-size:.85rem;font-family:inherit;outline:none;resize:vertical}
+        .report-area textarea:focus{border-color:var(--accent)}
+        .report-area textarea::placeholder{color:var(--text-sub)}
+        .report-preview{margin-top:12px;padding:16px;background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:14px;display:none}
+        .report-preview h4{font-size:.88rem;font-weight:700;color:var(--accent);margin-bottom:8px}
+        .report-summary{font-size:.78rem;line-height:1.7;color:var(--text-main)}
+        .btn-row{display:flex;gap:8px;margin-top:10px}
+        .btn-row button{flex:1}
+        .learn-box{margin-top:12px;padding:12px 14px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:12px;font-size:.76rem;line-height:1.7;color:#a5b4fc}
+        .learn-box b{color:#c4b5fd}
+        .app-footer{text-align:center;padding-top:16px;font-size:.7rem;color:rgba(148,163,184,.5);line-height:1.6}
+        @media(max-width:480px){.intro-title{font-size:2.6rem}.intro-logo{font-size:4rem}.val-box{min-width:95px;padding:8px 10px}#map{height:220px}.ds-tabs button{font-size:.66rem;padding:7px 2px}}
     </style>
 </head>
 <body>
@@ -172,31 +154,22 @@
             <button class="start-btn" id="startBtn">시작하기 →</button>
         </div>
     </div>
-
     <div class="app-wrap" id="appWrap">
-        <div class="app-header">
-            <h1>😷 먼지내비 (Dust-Navi)</h1>
-            <p>에어코리아 실시간 API 기반 | 데이터사이언스 체험 미세먼지 앱</p>
-        </div>
-
+        <div class="app-header"><h1>😷 먼지내비 (Dust-Navi)</h1><p>에어코리아 실시간 API 기반 | 데이터사이언스 체험 미세먼지 앱</p></div>
         <div class="search-bar">
-            <input type="text" id="inputStation" placeholder="측정소명 또는 동이름 (예: 종로구, 비전동)" value="비전동">
+            <input type="text" id="inputStation" placeholder="측정소명 또는 동/읍/면 (예: 종로구, 비전동)" value="비전동">
             <button class="btn-pri" id="btnSearch">조회</button>
         </div>
-
+        <div class="search-hint">💡 측정소명(종로구, 강남구) 또는 행정동(비전동, 세교동) 입력 — 상호명(스타필드 등)은 인식되지 않아요</div>
         <div class="map-section">
-            <div class="map-header">
-                <span>🗺️ 지도에서 클릭하여 조회</span>
-                <button class="btn-sm" id="btnMyLoc">📍 내 위치</button>
-            </div>
+            <div class="map-header"><span>🗺️ 지도에서 클릭하여 조회</span><button class="btn-sm" id="btnMyLoc">📍 내 위치</button></div>
             <div id="map"></div>
-            <div class="map-hint">💡 지도 클릭 = 가장 가까운 측정소 자동 조회 | 텍스트 검색 시 지도도 자동 이동</div>
+            <div class="map-hint">지도 클릭 → 가장 가까운 측정소 자동 조회 | 텍스트 검색 시 지도 자동 이동</div>
         </div>
-
         <div class="notice-banner" id="noticeBanner"></div>
-        <div class="loading-bar" id="loadingBar">📡 데이터를 불러오고 있어요...</div>
+        <div class="error-banner" id="errorBanner"></div>
+        <div class="loading-bar" id="loadingBar"></div>
         <div class="time-info" id="timeInfo"></div>
-
         <div class="card result-card" id="resultCard">
             <div class="station-badge" id="stationBadge">📍 관측소</div>
             <div class="result-icon" id="resultIcon">😀</div>
@@ -205,451 +178,234 @@
                 <div class="val-box"><div class="label">미세먼지 (PM10)</div><div><span class="number" id="valPM10">--</span> <span class="unit">µg/m³</span></div></div>
                 <div class="val-box"><div class="label">초미세먼지 (PM2.5)</div><div><span class="number" id="valPM25">--</span> <span class="unit">µg/m³</span></div></div>
             </div>
-            <div class="advice-box" id="adviceBox">외출 조언이 여기에 표시됩니다.</div>
+            <div class="advice-box" id="adviceBox"></div>
         </div>
-
         <div class="detail-grid" id="detailGrid">
             <div class="detail-item"><div class="d-label">오존 (O₃)</div><div class="d-value" id="valO3">--</div><div class="d-grade" id="gradeO3">--</div></div>
             <div class="detail-item"><div class="d-label">이산화질소</div><div class="d-value" id="valNO2">--</div><div class="d-grade" id="gradeNO2">--</div></div>
             <div class="detail-item"><div class="d-label">일산화탄소</div><div class="d-value" id="valCO">--</div><div class="d-grade" id="gradeCO">--</div></div>
         </div>
-
         <div class="card chart-section" id="chartSection">
-            <div class="chart-tabs" id="chartTabs">
-                <button class="active" data-tab="bar">📊 현재 비교</button>
-                <button data-tab="trend">📈 24시간 추이</button>
-            </div>
+            <div class="chart-tabs" id="chartTabs"><button class="active" data-tab="bar">📊 현재 비교</button><button data-tab="trend">📈 24시간 추이</button></div>
             <div class="chart-wrap"><canvas id="dustChart"></canvas></div>
         </div>
-
-        <!-- 데이터사이언스 분석실 -->
         <div class="ds-lab" id="dsLab">
-            <div class="ds-lab-header">
-                <h2>🔬 데이터사이언스 분석실</h2>
-                <p>수집한 데이터를 직접 분석하고 인사이트를 발견하세요!</p>
-            </div>
-            <div class="ds-tabs" id="dsTabs">
-                <button class="active" data-panel="preprocess">🧹 전처리</button>
-                <button data-panel="eda">📐 통계분석</button>
-                <button data-panel="compare">⚖️ 지역비교</button>
-                <button data-panel="corr">🔗 상관관계</button>
-                <button data-panel="report">📝 리포트</button>
-            </div>
-
-            <div class="ds-panel active" id="panel-preprocess">
-                <div class="card">
-                    <div class="card-title">🧹 데이터 전처리 체험</div>
-                    <p style="font-size:0.78rem;color:var(--text-sub);margin-bottom:8px;">원본(Raw) 데이터와 정제(Cleaned) 데이터를 비교해보세요. <span class="raw-bad">빨간색</span>이 문제 데이터입니다.</p>
-                    <div style="overflow-x:auto;"><table class="data-table"><thead><tr><th>시간</th><th>PM10 원본</th><th>PM10 정제</th><th>PM2.5 원본</th><th>PM2.5 정제</th><th>상태</th></tr></thead><tbody id="preprocessBody"></tbody></table></div>
-                    <div id="preprocessStats" style="margin-top:12px;"></div>
-                    <div class="learn-box">📚 <b>전처리(Preprocessing)란?</b> 센서 고장(-값), 통신 오류(빈칸), 이상치(갑자기 999) 같은 문제 데이터를 걸러내는 과정이에요. 이 단계를 건너뛰면 분석 결과가 엉망이 됩니다. <b>데이터사이언스의 첫 번째 단계!</b></div>
-                </div>
-            </div>
-
-            <div class="ds-panel" id="panel-eda">
-                <div class="card">
-                    <div class="card-title">📐 탐색적 데이터 분석 (EDA)</div>
-                    <p style="font-size:0.78rem;color:var(--text-sub);margin-bottom:8px;">24시간 데이터의 기초 통계량과 시간대별 패턴을 탐색하세요!</p>
-                    <div class="stat-grid">
-                        <div class="stat-card"><div class="s-label">PM10 평균</div><div class="s-value" id="statMean">--</div><div class="s-unit">µg/m³</div></div>
-                        <div class="stat-card"><div class="s-label">PM10 최댓값</div><div class="s-value" id="statMax">--</div><div class="s-unit">µg/m³</div></div>
-                        <div class="stat-card"><div class="s-label">PM10 최솟값</div><div class="s-value" id="statMin">--</div><div class="s-unit">µg/m³</div></div>
-                        <div class="stat-card"><div class="s-label">PM10 표준편차</div><div class="s-value" id="statStd">--</div><div class="s-unit">변동 폭</div></div>
-                    </div>
-                    <h4 style="font-size:0.82rem;font-weight:700;color:var(--text-accent);margin-top:16px;">⏰ 시간대별 PM10 평균</h4>
-                    <p style="font-size:0.72rem;color:var(--text-sub);margin-bottom:6px;">"언제 공기가 가장 나쁠까?" 데이터로 확인하세요!</p>
-                    <div class="time-analysis" id="timeAnalysis"></div>
-                    <div class="learn-box">📚 <b>EDA(탐색적 데이터 분석)란?</b> 본격 분석 전에 데이터의 패턴을 살펴보는 과정. <b>평균</b>은 전체 수준을, <b>표준편차</b>는 데이터가 얼마나 들쭉날쭉한지를 알려줘요!</div>
-                </div>
-            </div>
-
-            <div class="ds-panel" id="panel-compare">
-                <div class="card">
-                    <div class="card-title">⚖️ 다중 지역 비교 분석</div>
-                    <p style="font-size:0.78rem;color:var(--text-sub);margin-bottom:8px;">최대 3개 측정소를 비교! "왜 이 지역이 더 나쁠까?" 가설을 세워보세요.</p>
-                    <div class="compare-inputs">
-                        <input type="text" id="cmp1" placeholder="측정소 1" value="종로구">
-                        <input type="text" id="cmp2" placeholder="측정소 2" value="강남구">
-                        <input type="text" id="cmp3" placeholder="측정소 3" value="인천">
-                    </div>
-                    <button class="btn-pri" id="btnCompare" style="width:100%;padding:10px;border-radius:12px;">⚖️ 비교 분석 실행</button>
-                    <div class="compare-status" id="compareStatus"></div>
-                    <div class="compare-chart"><canvas id="compareChart"></canvas></div>
-                    <div id="compareInsight" style="margin-top:10px;font-size:0.78rem;color:var(--text-sub);"></div>
-                    <div class="learn-box">📚 <b>비교 분석</b>: 여러 대상을 나란히 놓고 차이를 발견하는 것. 차이가 보이면 "왜?"라는 가설을 세워보세요. 이것이 데이터사이언스의 핵심!</div>
-                </div>
-            </div>
-
-            <div class="ds-panel" id="panel-corr">
-                <div class="card">
-                    <div class="card-title">🔗 상관관계 분석</div>
-                    <p style="font-size:0.78rem;color:var(--text-sub);margin-bottom:8px;">PM10과 PM2.5는 함께 올라갈까? 산점도로 관계를 확인하세요!</p>
-                    <div class="scatter-wrap"><canvas id="scatterChart"></canvas></div>
-                    <div class="corr-result" id="corrResult">
-                        <div class="s-label">상관계수 (r)</div>
-                        <div class="corr-val" id="corrVal">--</div>
-                        <div class="corr-desc" id="corrDesc">데이터를 조회하면 상관계수가 계산됩니다.</div>
-                    </div>
-                    <div class="learn-box">📚 <b>상관계수(r)</b>는 -1~+1 사이 값. <b>+1에 가까우면</b> "A↑이면 B↑" (양의 상관), <b>0이면</b> 관계 없음, <b>-1이면</b> "A↑이면 B↓" (음의 상관). 산점도에서 점들이 직선에 가까울수록 상관이 강해요!</div>
-                </div>
-            </div>
-
-            <div class="ds-panel" id="panel-report">
-                <div class="card">
-                    <div class="card-title">📝 나만의 데이터 리포트</div>
-                    <p style="font-size:0.78rem;color:var(--text-sub);margin-bottom:8px;">분석 결과를 나만의 말로 해석하여 리포트를 완성하세요!</p>
-                    <div class="report-area">
-                        <textarea id="reportText" placeholder="예시) 24시간 데이터를 분석한 결과, 출근 시간(8~9시)에 PM10이 가장 높았다. 이는 자동차 배기가스 때문으로 추정된다."></textarea>
-                        <div class="btn-row">
-                            <button class="btn-pri" id="btnGenReport" style="border-radius:12px;padding:10px;">📊 리포트 생성</button>
-                            <button class="btn-pri" id="btnCopyReport" style="border-radius:12px;padding:10px;background:#64748b;">📋 복사</button>
-                        </div>
-                    </div>
-                    <div class="report-preview" id="reportPreview">
-                        <h4>📊 데이터 분석 리포트</h4>
-                        <div class="report-summary" id="reportSummary"></div>
-                    </div>
-                    <div class="learn-box">📚 <b>데이터 스토리텔링:</b> 숫자만 나열하지 말고 "무엇을 발견했고, 왜 그런지, 어떻게 해야 하는지"를 쓰는 것. <b>데이터사이언스의 마지막이자 가장 중요한 단계!</b></div>
-                </div>
-            </div>
+            <div class="ds-lab-header"><h2>🔬 데이터사이언스 분석실</h2><p>수집한 데이터를 직접 분석하고 인사이트를 발견하세요!</p></div>
+            <div class="ds-tabs" id="dsTabs"><button class="active" data-panel="preprocess">🧹 전처리</button><button data-panel="eda">📐 통계분석</button><button data-panel="compare">⚖️ 지역비교</button><button data-panel="corr">🔗 상관관계</button><button data-panel="report">📝 리포트</button></div>
+            <div class="ds-panel active" id="panel-preprocess"><div class="card"><div class="card-title">🧹 데이터 전처리 체험</div><p style="font-size:.78rem;color:var(--text-sub);margin-bottom:8px">원본(Raw) 데이터와 정제(Cleaned) 데이터를 비교하세요. <span class="raw-bad">빨간색</span>이 문제 데이터입니다.</p><div style="overflow-x:auto"><table class="data-table"><thead><tr><th>시간</th><th>PM10 원본</th><th>PM10 정제</th><th>PM2.5 원본</th><th>PM2.5 정제</th><th>상태</th></tr></thead><tbody id="preprocessBody"></tbody></table></div><div id="preprocessStats" style="margin-top:12px"></div><div class="learn-box">📚 <b>전처리(Preprocessing)란?</b> 센서 고장(-값), 통신 오류(빈칸) 같은 문제 데이터를 걸러내는 과정. <b>데이터사이언스의 첫 번째 단계!</b></div></div></div>
+            <div class="ds-panel" id="panel-eda"><div class="card"><div class="card-title">📐 탐색적 데이터 분석 (EDA)</div><div class="stat-grid"><div class="stat-card"><div class="s-label">PM10 평균</div><div class="s-value" id="statMean">--</div><div class="s-unit">µg/m³</div></div><div class="stat-card"><div class="s-label">PM10 최댓값</div><div class="s-value" id="statMax">--</div><div class="s-unit">µg/m³</div></div><div class="stat-card"><div class="s-label">PM10 최솟값</div><div class="s-value" id="statMin">--</div><div class="s-unit">µg/m³</div></div><div class="stat-card"><div class="s-label">PM10 표준편차</div><div class="s-value" id="statStd">--</div><div class="s-unit">변동 폭</div></div></div><h4 style="font-size:.82rem;font-weight:700;color:var(--text-accent);margin-top:16px">⏰ 시간대별 PM10 평균</h4><div class="time-analysis" id="timeAnalysis"></div><div class="learn-box">📚 <b>EDA:</b> 데이터의 패턴을 탐색하는 과정. <b>평균</b>=전체 수준, <b>표준편차</b>=변동 폭!</div></div></div>
+            <div class="ds-panel" id="panel-compare"><div class="card"><div class="card-title">⚖️ 다중 지역 비교 분석</div><div class="compare-inputs"><input type="text" id="cmp1" value="종로구"><input type="text" id="cmp2" value="강남구"><input type="text" id="cmp3" value="인천"></div><button class="btn-pri" id="btnCompare" style="width:100%;padding:10px;border-radius:12px">⚖️ 비교 분석 실행</button><div class="compare-status" id="compareStatus"></div><div class="compare-chart"><canvas id="compareChart"></canvas></div><div id="compareInsight" style="margin-top:10px;font-size:.78rem;color:var(--text-sub)"></div><div class="learn-box">📚 <b>비교 분석:</b> 여러 대상의 차이를 발견하고 "왜?"라는 가설을 세워보세요!</div></div></div>
+            <div class="ds-panel" id="panel-corr"><div class="card"><div class="card-title">🔗 상관관계 분석</div><div class="scatter-wrap"><canvas id="scatterChart"></canvas></div><div class="corr-result"><div class="s-label">상관계수 (r)</div><div class="corr-val" id="corrVal">--</div><div class="corr-desc" id="corrDesc">데이터 조회 후 자동 계산됩니다.</div></div><div class="learn-box">📚 <b>상관계수(r):</b> +1=강한 양의 상관, 0=무관, -1=강한 음의 상관</div></div></div>
+            <div class="ds-panel" id="panel-report"><div class="card"><div class="card-title">📝 나만의 데이터 리포트</div><div class="report-area"><textarea id="reportText" placeholder="분석 결과를 나만의 말로 해석해보세요!"></textarea><div class="btn-row"><button class="btn-pri" id="btnGenReport" style="border-radius:12px;padding:10px">📊 리포트 생성</button><button class="btn-pri" id="btnCopyReport" style="border-radius:12px;padding:10px;background:#64748b">📋 복사</button></div></div><div class="report-preview" id="reportPreview"><h4>📊 데이터 분석 리포트</h4><div class="report-summary" id="reportSummary"></div></div><div class="learn-box">📚 <b>데이터 스토리텔링:</b> 숫자를 이야기로! 데이터사이언스의 마지막 단계!</div></div></div>
         </div>
-
         <footer class="app-footer">Developed by K.G.B | Oseong Vibe Coding EduHub<br>데이터 출처: 에어코리아(한국환경공단) 실시간 대기오염 정보</footer>
     </div>
-
     <script>
-        const API_KEY = '177368c2a89b904d21db8ead8aaef990526cd6a7ab04767765a00cfa9d15e6fa';
-        const $ = id => document.getElementById(id);
-        let currentChart = null, currentTab = 'bar', trendData = null, lastMainColor = '#38bdf8';
-        let rawItems = [], compareChart = null, scatterChartObj = null;
-        let map, marker;
-        const isLocalFile = (location.protocol === 'file:');
+    const API_KEY='177368c2a89b904d21db8ead8aaef990526cd6a7ab04767765a00cfa9d15e6fa';
+    const $=id=>document.getElementById(id);
+    let currentChart=null,currentTab='bar',trendData=null,lastMainColor='#38bdf8';
+    let rawItems=[],compareChart=null,scatterChartObj=null,map,marker;
+    const isLocal=(location.protocol==='file:');
+    if(isLocal){$('noticeBanner').innerHTML='⚠️ <b>로컬 파일 모드</b> — GitHub Pages 배포 시 실제 데이터 표시';$('noticeBanner').style.display='block';}
 
-        if (isLocalFile) {
-            $('noticeBanner').innerHTML = '⚠️ <b>로컬 파일 모드</b> — GitHub Pages 배포 시 실제 데이터 표시';
-            $('noticeBanner').style.display = 'block';
-        }
+    $('startBtn').addEventListener('click',()=>{$('introScreen').classList.add('hidden');setTimeout(()=>{$('appWrap').style.display='block';requestAnimationFrame(()=>{$('appWrap').classList.add('active');initMap();});},400);});
 
-        /* 인트로 */
-        $('startBtn').addEventListener('click', () => {
-            $('introScreen').classList.add('hidden');
-            setTimeout(() => { $('appWrap').style.display = 'block'; requestAnimationFrame(() => { $('appWrap').classList.add('active'); initMap(); }); }, 400);
-        });
+    /* 🗺️ 지도 - 밝은 타일 (Voyager) */
+    function initMap(){
+        map=L.map('map',{center:[36.5,127.5],zoom:7,attributionControl:false});
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:18,subdomains:'abcd'}).addTo(map);
+        map.on('click',e=>{placeMarker(e.latlng.lat,e.latlng.lng);fetchByCoords(e.latlng.lat,e.latlng.lng);});
+    }
+    function placeMarker(lat,lng){if(marker)map.removeLayer(marker);marker=L.circleMarker([lat,lng],{radius:12,fillColor:'#6366f1',fillOpacity:.85,color:'#fff',weight:3}).addTo(map);}
+    function moveMapTo(lat,lng,name){if(!map)return;map.setView([lat,lng],13,{animate:true});placeMarker(lat,lng);if(marker&&name)marker.bindPopup(`<b style="color:#6366f1">📍 ${name}</b>`).openPopup();}
+    function tmToLatLng(tmX,tmY){return{lat:(tmY-500000)/111319+38,lng:(tmX-200000)/88359+127};}
 
-        /* ============================================================
-         * 🗺️ 지도 초기화 - 밝은 타일 사용
-         * ============================================================
-         * [수정] CartoDB Voyager 타일로 변경 (밝고 선명한 지도)
-         * ============================================================ */
-        function initMap() {
-            map = L.map('map', { center: [36.5, 127.5], zoom: 7, attributionControl: false });
+    $('btnMyLoc').addEventListener('click',()=>{
+        if(!navigator.geolocation)return;$('btnMyLoc').textContent="📡 찾는 중...";
+        navigator.geolocation.getCurrentPosition(pos=>{const{latitude:la,longitude:ln}=pos.coords;moveMapTo(la,ln,'내 위치');fetchByCoords(la,ln);$('btnMyLoc').textContent="📍 내 위치";},()=>{alert("위치 접근 거부");$('btnMyLoc').textContent="📍 내 위치";},{enableHighAccuracy:true,timeout:8000});
+    });
 
-            // ✅ 밝은 지도 타일 (CartoDB Voyager)
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                maxZoom: 18,
-                subdomains: 'abcd'
-            }).addTo(map);
+    async function fetchByCoords(lat,lng){
+        if(isLocal){showMockResult('클릭 위치 (시연용)');return;}
+        const tmX=(lng-127)*88359+200000,tmY=(lat-38)*111319+500000;
+        showLoading("🏢 근처 관측소를 찾는 중...");
+        try{
+            const d=await(await fetch(`https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${API_KEY}&returnType=json&tmX=${tmX}&tmY=${tmY}`)).json();
+            if(d.response?.body?.items?.length>0){const s=d.response.body.items[0].stationName;$('inputStation').value=s;await fetchStationData(s);if(marker)marker.bindPopup(`<b style="color:#6366f1">📍 ${s}</b>`).openPopup();return;}
+        }catch(e){}
+        showMockResult('선택 위치 (시연용)');
+    }
 
-            map.on('click', e => {
-                placeMarker(e.latlng.lat, e.latlng.lng);
-                fetchByCoords(e.latlng.lat, e.latlng.lng);
-            });
-        }
+    $('btnSearch').addEventListener('click',()=>{const n=$('inputStation').value.trim();if(!n){alert("이름을 입력하세요!");return;}fetchDustData(n);});
+    $('inputStation').addEventListener('keypress',e=>{if(e.key==='Enter')$('btnSearch').click();});
 
-        function placeMarker(lat, lng) {
-            if (marker) map.removeLayer(marker);
-            marker = L.circleMarker([lat, lng], {
-                radius: 12, fillColor: '#6366f1', fillOpacity: 0.85,
-                color: '#fff', weight: 3
-            }).addTo(map);
-        }
+    /* ============================================================
+     * 🔑 [핵심 수정] 스마트 검색 로직
+     * ============================================================
+     * 검색 순서:
+     * 1) 입력값 그대로 → 측정소명 직접 조회
+     * 2) 입력값 그대로 → 동/읍/면 TM좌표 조회
+     * 3) 첫 번째 단어만 추출 → 측정소명 재시도
+     * 4) 첫 번째 단어만 → 동/읍/면 재시도
+     * 5) 모두 실패 → 에러 메시지 (가상 데이터 아님!)
+     * ============================================================ */
+    async function fetchDustData(name){
+        $('errorBanner').style.display='none'; // 이전 에러 숨기기
+        if(isLocal){showLoading("🎭 시연 모드");await delay(500);showMockResult(name+' (시연용)');return;}
+        showLoading("📡 에어코리아 서버 연결 중...");
 
-        /* ============================================================
-         * 🗺️ [수정 핵심] 지도를 검색 위치로 이동시키는 함수
-         * TM좌표 → 위경도 역변환 후 지도 이동 & 마커 표시
-         * ============================================================ */
-        function moveMapToTM(tmX, tmY, stationName) {
-            // TM좌표 → 위경도 역변환 (간이 공식)
-            const lng = (tmX - 200000.0) / 88359.0 + 127.0;
-            const lat = (tmY - 500000.0) / 111319.0 + 38.0;
-            moveMapToLatLng(lat, lng, stationName);
-        }
+        try{
+            if(!API_KEY)throw new Error("NO_KEY");
 
-        function moveMapToLatLng(lat, lng, stationName) {
-            if (!map) return;
-            map.setView([lat, lng], 13, { animate: true });
-            placeMarker(lat, lng);
-            if (marker && stationName) {
-                marker.bindPopup(`<b style="color:#6366f1">📍 ${stationName}</b><br>관측소 위치`).openPopup();
-            }
-        }
+            // ── 시도 1: 입력값 그대로 측정소명 직접 조회 ──
+            updateLoading(`😷 '${name}' 측정소 조회 중...`);
+            const direct = await tryDirectStation(name);
+            if(direct) return;
 
-        /* 내 위치 */
-        $('btnMyLoc').addEventListener('click', () => {
-            if (!navigator.geolocation) return;
-            $('btnMyLoc').textContent = "📡 찾는 중...";
-            navigator.geolocation.getCurrentPosition(
-                pos => { const {latitude:la,longitude:ln}=pos.coords; moveMapToLatLng(la,ln,'내 위치'); fetchByCoords(la,ln); $('btnMyLoc').textContent="📍 내 위치"; },
-                () => { alert("위치 접근 거부"); $('btnMyLoc').textContent="📍 내 위치"; },
-                { enableHighAccuracy: true, timeout: 8000 }
-            );
-        });
+            // ── 시도 2: 입력값 그대로 동/읍/면 검색 ──
+            updateLoading(`📍 '${name}' 동/읍/면 검색 중...`);
+            const tmResult = await tryTMSearch(name);
+            if(tmResult) return;
 
-        async function fetchByCoords(lat, lng) {
-            if (isLocalFile) { showMockResult(`클릭위치 (가상)`); return; }
-            const tmX = (lng - 127) * 88359 + 200000, tmY = (lat - 38) * 111319 + 500000;
-            showLoading("🏢 근처 관측소를 찾는 중...");
-            try {
-                const d = await (await fetch(`https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${API_KEY}&returnType=json&tmX=${tmX}&tmY=${tmY}`)).json();
-                if (d.response?.body?.items?.length > 0) {
-                    const s = d.response.body.items[0].stationName;
-                    $('inputStation').value = s;
-                    await fetchStationData(s);
-                    if (marker) marker.bindPopup(`<b style="color:#6366f1">📍 ${s}</b>`).openPopup();
-                    return;
+            // ── 시도 3: 첫 번째 단어만 추출하여 재시도 ──
+            const firstWord = name.split(/[\s,./]+/)[0]; // "안성 스타필드" → "안성"
+            if(firstWord && firstWord !== name){
+                updateLoading(`🔄 '${firstWord}'(으)로 재검색 중...`);
+
+                // 3-1: 첫 단어로 측정소명 시도
+                const direct2 = await tryDirectStation(firstWord);
+                if(direct2) return;
+
+                // 3-2: 첫 단어로 동/읍/면 시도
+                const tm2 = await tryTMSearch(firstWord);
+                if(tm2) return;
+
+                // 3-3: 첫 단어 + "동" 붙여서 시도 (예: "안성" → "안성동")
+                if(!firstWord.match(/[동읍면시구]$/)){
+                    const withDong = firstWord + '동';
+                    updateLoading(`🔄 '${withDong}'(으)로 재검색 중...`);
+                    const tm3 = await tryTMSearch(withDong);
+                    if(tm3) return;
                 }
-            } catch (e) {}
-            showMockResult("선택 위치 (가상)");
-        }
-
-        /* 검색 */
-        $('btnSearch').addEventListener('click', () => { const n = $('inputStation').value.trim(); if (!n) { alert("이름을 입력하세요!"); return; } fetchDustData(n); });
-        $('inputStation').addEventListener('keypress', e => { if (e.key === 'Enter') $('btnSearch').click(); });
-
-        /* ============================================================
-         * 🔑 API 호출 메인 - 지도 연동 포함
-         * [수정] 검색 시 TM좌표를 저장하여 지도를 해당 위치로 이동
-         * ============================================================ */
-        async function fetchDustData(name) {
-            if (isLocalFile) { showLoading("🎭 가상 데이터 생성 중..."); await delay(500); showMockResult(name + " (가상)"); return; }
-            showLoading("📡 서버 연결 중...");
-            try {
-                if (!API_KEY) throw new Error("NO_KEY");
-
-                // 방법 1: 측정소명 직접 조회
-                updateLoading(`😷 '${name}' 조회 중...`);
-                if (await tryDirect(name)) return;
-
-                // 방법 2: 동이름 → TM좌표 → 근접측정소
-                updateLoading("📍 동/읍/면으로 검색 중...");
-                const tmUrl = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt?serviceKey=${API_KEY}&returnType=json&umdName=${encodeURIComponent(name)}&numOfRows=1&pageNo=1`;
-                const tmJson = await (await fetch(tmUrl)).json();
-                const tmItems = tmJson.response?.body?.items;
-                if (!tmItems?.length) throw new Error("위치 없음");
-
-                const tmX = tmItems[0].tmX;
-                const tmY = tmItems[0].tmY;
-
-                updateLoading("🏢 근접 관측소 탐색 중...");
-                const nearUrl = `https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${API_KEY}&returnType=json&tmX=${tmX}&tmY=${tmY}`;
-                const nearJson = await (await fetch(nearUrl)).json();
-                const nearItems = nearJson.response?.body?.items;
-                if (!nearItems?.length) throw new Error("측정소 없음");
-
-                const stationName = nearItems[0].stationName;
-
-                // ✅ [수정] 지도를 검색한 위치로 이동!
-                moveMapToTM(parseFloat(tmX), parseFloat(tmY), stationName);
-
-                await fetchStationData(stationName);
-            } catch (err) { console.warn(err.message); showMockResult(name + " (가상)"); }
-        }
-
-        async function tryDirect(name) {
-            try {
-                const j = await (await fetch(buildUrl(name, 1))).json();
-                if (j.response?.header?.resultCode === "00" && j.response?.body?.items?.length > 0) {
-                    await fetchStationData(name);
-                    return true;
-                }
-            } catch (e) {}
-            return false;
-        }
-
-        async function fetchStationData(sn) {
-            updateLoading(`😷 '${sn}' 데이터 수집 중...`);
-            const j = await (await fetch(buildUrl(sn, 24))).json();
-            if (j.response?.header?.resultCode !== "00") throw new Error("실패");
-            const items = j.response.body.items; if (!items?.length) throw new Error("없음");
-            rawItems = items;
-            const l = items[0];
-            trendData = items.slice(0, 24).reverse().map(i => ({
-                time: (i.dataTime || '').split(' ').pop() || '',
-                pm10: parseInt(i.pm10Value) || 0, pm25: parseInt(i.pm25Value) || 0,
-                pm10Raw: i.pm10Value, pm25Raw: i.pm25Value
-            })).filter(d => d.time);
-            hideLoading();
-            renderResult({
-                pm10: parseInt(l.pm10Value) || 0, pm25: parseInt(l.pm25Value) || 0,
-                o3: l.o3Value || '--', no2: l.no2Value || '--', co: l.coValue || '--',
-                o3Grade: l.o3Grade || '0', no2Grade: l.no2Grade || '0', coGrade: l.coGrade || '0',
-                dataTime: l.dataTime || '--'
-            }, sn);
-        }
-
-        function buildUrl(s, r) {
-            return `https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${API_KEY}&returnType=json&numOfRows=${r}&pageNo=1&stationName=${encodeURIComponent(s)}&dataTerm=DAILY&ver=1.5`;
-        }
-
-        /* 가상 데이터 */
-        function showMockResult(label) {
-            const r = Math.random(); let pm10, pm25;
-            if (r < 0.35) { pm10 = rand(10, 30); pm25 = rand(5, 15); }
-            else if (r < 0.7) { pm10 = rand(31, 80); pm25 = rand(16, 35); }
-            else if (r < 0.9) { pm10 = rand(81, 150); pm25 = rand(36, 75); }
-            else { pm10 = rand(151, 250); pm25 = rand(76, 120); }
-            trendData = Array.from({ length: 24 }, (_, h) => {
-                const p10 = Math.max(3, pm10 + rand(-35, 35)), p25 = Math.max(1, pm25 + rand(-20, 20));
-                const bad = Math.random() < 0.12;
-                return { time: String(h).padStart(2, '0') + ':00', pm10: p10, pm25: p25, pm10Raw: bad ? (Math.random() < 0.5 ? '-' : '통신장애') : String(p10), pm25Raw: bad ? '-' : String(p25) };
-            });
-            hideLoading();
-            renderResult({ pm10, pm25, o3: (Math.random() * 0.08).toFixed(3), no2: (Math.random() * 0.05).toFixed(3), co: (Math.random() * 0.8).toFixed(1), o3Grade: String(rand(1, 4)), no2Grade: String(rand(1, 3)), coGrade: String(rand(1, 3)), dataTime: new Date().toLocaleString('ko-KR') }, label);
-        }
-        function rand(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
-        function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-        /* 등급 */
-        function getDustLevel(pm10, pm25) {
-            const a = pm10 <= 30 ? 0 : pm10 <= 80 ? 1 : pm10 <= 150 ? 2 : 3;
-            const b = pm25 <= 15 ? 0 : pm25 <= 35 ? 1 : pm25 <= 75 ? 2 : 3;
-            return [
-                { title: "좋음 😆", icon: "😆", color: "var(--dust-good)", hex: "#38bdf8", advice: "🌈 공기가 매우 맑아요! 야외 활동 OK!" },
-                { title: "보통 🙂", icon: "🙂", color: "var(--dust-normal)", hex: "#4ade80", advice: "👍 무난한 공기예요. 평소처럼 활동하세요." },
-                { title: "나쁨 😷", icon: "😷", color: "var(--dust-bad)", hex: "#fb923c", advice: "⚠️ 외출 시 KF94 마스크 필수! 격렬한 운동은 피하세요." },
-                { title: "매우 나쁨 ☠️", icon: "☠️", color: "var(--dust-worst)", hex: "#f87171", advice: "🚨 매우 위험! 외출 자제! 창문 닫고 실내에 머무르세요." }
-            ][Math.max(a, b)];
-        }
-        function gradeToText(g) { return { '1': ['좋음', '#38bdf8'], '2': ['보통', '#4ade80'], '3': ['나쁨', '#fb923c'], '4': ['매우나쁨', '#f87171'] }[g] || ['--', '#94a3b8']; }
-
-        /* 렌더링 */
-        function renderResult(data, sName) {
-            const lv = getDustLevel(data.pm10, data.pm25); lastMainColor = lv.hex;
-            $('stationBadge').textContent = `📍 ${sName} 관측소 기준`;
-            $('resultIcon').textContent = lv.icon; $('resultGrade').textContent = lv.title; $('resultGrade').style.color = lv.color;
-            $('valPM10').textContent = data.pm10; $('valPM10').style.color = lv.color; $('valPM25').textContent = data.pm25;
-            $('adviceBox').textContent = lv.advice; $('adviceBox').style.borderLeftColor = lv.color;
-            $('valO3').textContent = data.o3; $('valNO2').textContent = data.no2; $('valCO').textContent = data.co;
-            setBadge('gradeO3', gradeToText(data.o3Grade)); setBadge('gradeNO2', gradeToText(data.no2Grade)); setBadge('gradeCO', gradeToText(data.coGrade));
-            if (data.dataTime !== '--') { $('timeInfo').textContent = `📅 측정: ${data.dataTime}`; $('timeInfo').style.display = 'block'; }
-            $('resultCard').style.display = 'block'; $('detailGrid').style.display = 'grid'; $('chartSection').style.display = 'block'; $('dsLab').style.display = 'block';
-            drawCurrentChart(); updatePreprocess(); updateEDA(); updateCorrelation();
-            $('resultCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        function setBadge(id, arr) { const e = $(id); e.textContent = arr[0]; e.style.background = arr[1] + '22'; e.style.color = arr[1]; }
-
-        /* 차트 */
-        $('chartTabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; currentTab = b.dataset.tab; $('chartTabs').querySelectorAll('button').forEach(x => x.classList.remove('active')); b.classList.add('active'); drawCurrentChart(); });
-        function drawCurrentChart() { currentTab === 'bar' ? drawBarChart() : drawTrendChart(); }
-        function drawBarChart() {
-            if (currentChart) currentChart.destroy(); Chart.defaults.font.family = "'Noto Sans KR',sans-serif";
-            currentChart = new Chart($('dustChart'), { type: 'bar', data: { labels: ['PM10', 'PM2.5'], datasets: [{ label: 'µg/m³', data: [parseInt($('valPM10').textContent) || 0, parseInt($('valPM25').textContent) || 0], backgroundColor: [lastMainColor + 'cc', '#64748b99'], borderRadius: 10, barThickness: 50 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b', cornerRadius: 8, padding: 12 } }, animation: { duration: 900, easing: 'easeOutQuart' } } });
-        }
-        function drawTrendChart() {
-            if (currentChart) currentChart.destroy();
-            const valid = trendData?.filter(d => d.pm10 > 0) || [];
-            if (!valid.length) return;
-            currentChart = new Chart($('dustChart'), { type: 'line', data: { labels: valid.map(d => d.time), datasets: [{ label: 'PM10', data: valid.map(d => d.pm10), borderColor: '#38bdf8', backgroundColor: 'rgba(56,189,248,0.1)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2.5 }, { label: 'PM2.5', data: valid.map(d => d.pm25), borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.08)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2.5 }] }, options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 10 } } } }, plugins: { legend: { labels: { color: '#e2e8f0', usePointStyle: true, padding: 16 } }, tooltip: { backgroundColor: '#1e293b', cornerRadius: 8, padding: 12 } }, animation: { duration: 1000 } } });
-        }
-
-        /* DS 탭 */
-        $('dsTabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; $('dsTabs').querySelectorAll('button').forEach(x => x.classList.remove('active')); b.classList.add('active'); document.querySelectorAll('.ds-panel').forEach(p => p.classList.remove('active')); $('panel-' + b.dataset.panel).classList.add('active'); });
-
-        /* DS1: 전처리 */
-        function updatePreprocess() {
-            if (!trendData?.length) return;
-            const tbody = $('preprocessBody'); tbody.innerHTML = '';
-            let total = 0, bad = 0;
-            trendData.forEach(d => {
-                total++;
-                const r10 = d.pm10Raw || String(d.pm10), r25 = d.pm25Raw || String(d.pm25);
-                const b10 = isNaN(parseInt(r10)) || parseInt(r10) < 0;
-                const b25 = isNaN(parseInt(r25)) || parseInt(r25) < 0;
-                if (b10 || b25) bad++;
-                tbody.innerHTML += `<tr><td>${d.time}</td><td>${b10 ? `<span class="raw-bad">${r10}</span>` : `<span class="raw-ok">${r10}</span>`}</td><td><span class="cleaned">${d.pm10}</span></td><td>${b25 ? `<span class="raw-bad">${r25}</span>` : `<span class="raw-ok">${r25}</span>`}</td><td><span class="cleaned">${d.pm25}</span></td><td>${(b10 || b25) ? '🔧 정제' : '✅ 정상'}</td></tr>`;
-            });
-            $('preprocessStats').innerHTML = `<div style="display:flex;gap:8px;"><div class="stat-card" style="flex:1"><div class="s-label">전체</div><div class="s-value">${total}건</div></div><div class="stat-card" style="flex:1"><div class="s-label">문제 데이터</div><div class="s-value" style="color:var(--dust-worst)">${bad}건</div></div><div class="stat-card" style="flex:1"><div class="s-label">정제율</div><div class="s-value" style="color:var(--dust-normal)">${((1 - bad / total) * 100).toFixed(1)}%</div></div></div>`;
-        }
-
-        /* DS2: EDA */
-        function updateEDA() {
-            if (!trendData?.length) return;
-            const vals = trendData.filter(d => d.pm10 > 0).map(d => d.pm10);
-            if (!vals.length) return;
-            const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
-            const max = Math.max(...vals), min = Math.min(...vals);
-            const std = Math.sqrt(vals.reduce((s, v) => s + (v - mean) ** 2, 0) / vals.length);
-            $('statMean').textContent = mean.toFixed(1); $('statMax').textContent = max;
-            $('statMin').textContent = min; $('statStd').textContent = std.toFixed(1);
-            $('statMean').style.color = getDustLevel(Math.round(mean), 0).hex;
-            $('statMax').style.color = getDustLevel(max, 0).hex;
-            $('statMin').style.color = getDustLevel(min, 0).hex;
-            const periods = [{ name: '새벽(0~6)', s: 0, e: 6 }, { name: '오전(6~12)', s: 6, e: 12 }, { name: '오후(12~18)', s: 12, e: 18 }, { name: '저녁(18~24)', s: 18, e: 24 }];
-            const ta = $('timeAnalysis'); ta.innerHTML = '';
-            const pAvgs = periods.map(p => { const pd = trendData.filter(d => { const h = parseInt(d.time); return h >= p.s && h < p.e && d.pm10 > 0; }); return pd.length ? pd.reduce((s, d) => s + d.pm10, 0) / pd.length : 0; });
-            const pMax = Math.max(...pAvgs, 1);
-            periods.forEach((p, i) => { const avg = pAvgs[i]; const pct = (avg / pMax * 100).toFixed(0); const col = getDustLevel(Math.round(avg), 0).hex; ta.innerHTML += `<div class="time-bar"><div class="t-label">${p.name}</div><div class="t-bar-wrap"><div class="t-bar" style="width:${pct}%;background:${col}">${avg.toFixed(0)}</div></div></div>`; });
-        }
-
-        /* DS3: 비교 */
-        $('btnCompare').addEventListener('click', runCompare);
-        async function runCompare() {
-            const names = [1, 2, 3].map(i => $('cmp' + i).value.trim()).filter(Boolean);
-            if (names.length < 2) { alert("최소 2개 입력!"); return; }
-            $('compareStatus').textContent = '📡 데이터 수집 중...';
-            const results = [];
-            for (const name of names) {
-                try {
-                    if (isLocalFile) throw new Error("local");
-                    const j = await (await fetch(buildUrl(name, 1))).json();
-                    if (j.response?.header?.resultCode === "00" && j.response?.body?.items?.length > 0) {
-                        const it = j.response.body.items[0];
-                        results.push({ name, pm10: parseInt(it.pm10Value) || 0, pm25: parseInt(it.pm25Value) || 0 });
-                    } else throw new Error("x");
-                } catch (e) { results.push({ name: name + '(가상)', pm10: rand(15, 120), pm25: rand(5, 60) }); }
             }
-            $('compareStatus').textContent = '';
-            if (compareChart) compareChart.destroy();
-            compareChart = new Chart($('compareChart'), { type: 'bar', data: { labels: results.map(r => r.name), datasets: [{ label: 'PM10', data: results.map(r => r.pm10), backgroundColor: 'rgba(56,189,248,0.7)', borderRadius: 8 }, { label: 'PM2.5', data: results.map(r => r.pm25), backgroundColor: 'rgba(167,139,250,0.7)', borderRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { labels: { color: '#e2e8f0', usePointStyle: true } }, tooltip: { backgroundColor: '#1e293b', cornerRadius: 8, padding: 12 } }, animation: { duration: 900 } } });
-            const best = results.reduce((a, b) => a.pm10 < b.pm10 ? a : b);
-            const worst = results.reduce((a, b) => a.pm10 > b.pm10 ? a : b);
-            $('compareInsight').innerHTML = `💡 <b>분석:</b> 가장 좋은 곳 <b style="color:#4ade80">${best.name}</b>(PM10:${best.pm10}), 가장 나쁜 곳 <b style="color:#fb923c">${worst.name}</b>(PM10:${worst.pm10}). 차이: <b>${worst.pm10 - best.pm10}</b> µg/m³ — 왜 이런 차이가 날까요? 🤔`;
+
+            // ── 모든 시도 실패 → 명확한 에러 표시 ──
+            hideLoading();
+            $('errorBanner').innerHTML = `❌ <b>'${name}'</b>을(를) 찾을 수 없습니다.<br>💡 <b>올바른 입력 예시:</b> 측정소명(종로구, 강남구, 평택시) 또는 행정동(비전동, 세교동, 역삼동)<br>⚠️ 상호명(스타필드, 이마트 등)이나 건물명은 인식되지 않습니다.`;
+            $('errorBanner').style.display = 'block';
+
+        }catch(err){
+            console.warn("API 오류:",err.message);
+            hideLoading();
+            $('errorBanner').innerHTML = `❌ 서버 오류가 발생했습니다: ${err.message}`;
+            $('errorBanner').style.display = 'block';
         }
+    }
 
-        /* DS4: 상관관계 */
-        function updateCorrelation() {
-            if (!trendData?.length) return;
-            const valid = trendData.filter(d => d.pm10 > 0 && d.pm25 > 0);
-            if (valid.length < 3) return;
-            const x = valid.map(d => d.pm10), y = valid.map(d => d.pm25);
-            const r = pearsonR(x, y);
-            if (scatterChartObj) scatterChartObj.destroy();
-            scatterChartObj = new Chart($('scatterChart'), { type: 'scatter', data: { datasets: [{ label: 'PM10 vs PM2.5', data: valid.map(d => ({ x: d.pm10, y: d.pm25 })), backgroundColor: 'rgba(56,189,248,0.6)', pointRadius: 5, pointHoverRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { title: { display: true, text: 'PM10 (µg/m³)', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }, y: { title: { display: true, text: 'PM2.5 (µg/m³)', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } } }, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1e293b', cornerRadius: 8, callbacks: { label: ctx => `PM10: ${ctx.parsed.x}, PM2.5: ${ctx.parsed.y}` } } }, animation: { duration: 800 } } });
-            $('corrVal').textContent = r.toFixed(3);
-            $('corrVal').style.color = Math.abs(r) > 0.7 ? '#4ade80' : Math.abs(r) > 0.4 ? '#fbbf24' : '#fb923c';
-            $('corrDesc').textContent = Math.abs(r) > 0.7 ? '강한 양의 상관관계! PM10과 PM2.5가 함께 변합니다.' : Math.abs(r) > 0.4 ? '중간 수준의 상관관계. 어느 정도 함께 움직여요.' : '약한 상관관계. 두 값이 독립적으로 변해요.';
-        }
-        function pearsonR(x, y) { const n = x.length, mx = x.reduce((a, b) => a + b) / n, my = y.reduce((a, b) => a + b) / n; let num = 0, dx2 = 0, dy2 = 0; for (let i = 0; i < n; i++) { const dx = x[i] - mx, dy = y[i] - my; num += dx * dy; dx2 += dx * dx; dy2 += dy * dy; } return dx2 && dy2 ? num / Math.sqrt(dx2 * dy2) : 0; }
+    /* 측정소명 직접 조회 시도 → 성공 시 true */
+    async function tryDirectStation(name){
+        try{
+            const j=await(await fetch(buildUrl(name,1))).json();
+            if(j.response?.header?.resultCode==="00"&&j.response?.body?.items?.length>0){
+                await fetchStationData(name);
+                return true;
+            }
+        }catch(e){}
+        return false;
+    }
 
-        /* DS5: 리포트 */
-        $('btnGenReport').addEventListener('click', () => {
-            const userText = $('reportText').value.trim();
-            const valid = trendData?.filter(d => d.pm10 > 0) || [];
-            const pm10Vals = valid.map(d => d.pm10);
-            const mean = pm10Vals.length ? pm10Vals.reduce((a, b) => a + b) / pm10Vals.length : 0;
-            const max = pm10Vals.length ? Math.max(...pm10Vals) : 0;
-            const min = pm10Vals.length ? Math.min(...pm10Vals) : 0;
-            const std = pm10Vals.length ? Math.sqrt(pm10Vals.reduce((s, v) => s + (v - mean) ** 2, 0) / pm10Vals.length) : 0;
-            const corrR = valid.length >= 3 ? pearsonR(valid.map(d => d.pm10), valid.map(d => d.pm25)) : 0;
-            const station = $('stationBadge').textContent;
-            $('reportSummary').innerHTML = `<p><b>📅</b> ${new Date().toLocaleString('ko-KR')}</p><p><b>📍</b> ${station}</p><hr style="border:none;border-top:1px solid var(--border-glass);margin:8px 0"><p><b>📐 기초 통계 (PM10, 24시간)</b></p><p>평균: ${mean.toFixed(1)} | 최대: ${max} | 최소: ${min} | 표준편차: ${std.toFixed(1)}</p><p><b>🔗 상관분석:</b> PM10-PM2.5 r = ${corrR.toFixed(3)}</p><hr style="border:none;border-top:1px solid var(--border-glass);margin:8px 0"><p><b>✏️ 나의 해석:</b></p><p>${userText || '(아직 작성되지 않았습니다)'}</p><hr style="border:none;border-top:1px solid var(--border-glass);margin:8px 0"><p style="font-size:0.68rem;color:var(--text-sub)">먼지내비 DS 분석 리포트 | K.G.B | Oseong Vibe Coding EduHub</p>`;
-            $('reportPreview').style.display = 'block';
-        });
-        $('btnCopyReport').addEventListener('click', () => { navigator.clipboard.writeText($('reportSummary').innerText).then(() => alert('📋 복사 완료!')).catch(() => alert('복사 실패')); });
+    /* 동/읍/면 TM좌표 검색 → 성공 시 true (+ 지도 이동) */
+    async function tryTMSearch(locationName){
+        try{
+            const tmUrl=`https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt?serviceKey=${API_KEY}&returnType=json&umdName=${encodeURIComponent(locationName)}&numOfRows=1&pageNo=1`;
+            const tmJson=await(await fetch(tmUrl)).json();
+            const tmItems=tmJson.response?.body?.items;
+            if(!tmItems?.length) return false;
 
-        function showLoading(m) { $('loadingBar').textContent = m; $('loadingBar').style.display = 'block'; $('resultCard').style.display = 'none'; $('detailGrid').style.display = 'none'; $('chartSection').style.display = 'none'; $('timeInfo').style.display = 'none'; $('dsLab').style.display = 'none'; }
-        function updateLoading(m) { $('loadingBar').textContent = m; }
-        function hideLoading() { $('loadingBar').style.display = 'none'; }
+            const tmX=parseFloat(tmItems[0].tmX), tmY=parseFloat(tmItems[0].tmY);
+
+            updateLoading("🏢 근접 관측소 탐색 중...");
+            const nearUrl=`https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=${API_KEY}&returnType=json&tmX=${tmX}&tmY=${tmY}`;
+            const nearJson=await(await fetch(nearUrl)).json();
+            const nearItems=nearJson.response?.body?.items;
+            if(!nearItems?.length) return false;
+
+            const stationName=nearItems[0].stationName;
+
+            // ✅ 지도를 검색 위치로 이동!
+            const {lat,lng}=tmToLatLng(tmX,tmY);
+            moveMapTo(lat,lng,stationName);
+
+            await fetchStationData(stationName);
+            return true;
+        }catch(e){return false;}
+    }
+
+    async function fetchStationData(sn){
+        updateLoading(`😷 '${sn}' 데이터 수집 중...`);
+        const j=await(await fetch(buildUrl(sn,24))).json();
+        if(j.response?.header?.resultCode!=="00")throw new Error("조회 실패");
+        const items=j.response.body.items;if(!items?.length)throw new Error("데이터 없음");
+        rawItems=items;const l=items[0];
+        trendData=items.slice(0,24).reverse().map(i=>({time:(i.dataTime||'').split(' ').pop()||'',pm10:parseInt(i.pm10Value)||0,pm25:parseInt(i.pm25Value)||0,pm10Raw:i.pm10Value,pm25Raw:i.pm25Value})).filter(d=>d.time);
+        hideLoading();
+        renderResult({pm10:parseInt(l.pm10Value)||0,pm25:parseInt(l.pm25Value)||0,o3:l.o3Value||'--',no2:l.no2Value||'--',co:l.coValue||'--',o3Grade:l.o3Grade||'0',no2Grade:l.no2Grade||'0',coGrade:l.coGrade||'0',dataTime:l.dataTime||'--'},sn);
+    }
+
+    function buildUrl(s,r){return`https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${API_KEY}&returnType=json&numOfRows=${r}&pageNo=1&stationName=${encodeURIComponent(s)}&dataTerm=DAILY&ver=1.5`;}
+
+    /* 시연용 Mock */
+    function showMockResult(label){
+        const r=Math.random();let pm10,pm25;
+        if(r<.35){pm10=rand(10,30);pm25=rand(5,15);}else if(r<.7){pm10=rand(31,80);pm25=rand(16,35);}else if(r<.9){pm10=rand(81,150);pm25=rand(36,75);}else{pm10=rand(151,250);pm25=rand(76,120);}
+        trendData=Array.from({length:24},(_,h)=>{const p10=Math.max(3,pm10+rand(-35,35)),p25=Math.max(1,pm25+rand(-20,20));const bad=Math.random()<.12;return{time:String(h).padStart(2,'0')+':00',pm10:p10,pm25:p25,pm10Raw:bad?(Math.random()<.5?'-':'통신장애'):String(p10),pm25Raw:bad?'-':String(p25)};});
+        hideLoading();
+        renderResult({pm10,pm25,o3:(Math.random()*.08).toFixed(3),no2:(Math.random()*.05).toFixed(3),co:(Math.random()*.8).toFixed(1),o3Grade:String(rand(1,4)),no2Grade:String(rand(1,3)),coGrade:String(rand(1,3)),dataTime:new Date().toLocaleString('ko-KR')},label);
+    }
+    function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+    function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+
+    function getDustLevel(pm10,pm25){const a=pm10<=30?0:pm10<=80?1:pm10<=150?2:3,b=pm25<=15?0:pm25<=35?1:pm25<=75?2:3;return[{title:"좋음 😆",icon:"😆",color:"var(--dust-good)",hex:"#38bdf8",advice:"🌈 공기가 매우 맑아요! 야외 활동 OK!"},{title:"보통 🙂",icon:"🙂",color:"var(--dust-normal)",hex:"#4ade80",advice:"👍 무난한 공기예요. 평소처럼 활동하세요."},{title:"나쁨 😷",icon:"😷",color:"var(--dust-bad)",hex:"#fb923c",advice:"⚠️ 외출 시 KF94 마스크 필수!"},{title:"매우 나쁨 ☠️",icon:"☠️",color:"var(--dust-worst)",hex:"#f87171",advice:"🚨 매우 위험! 외출 자제!"}][Math.max(a,b)];}
+    function gradeToText(g){return{'1':['좋음','#38bdf8'],'2':['보통','#4ade80'],'3':['나쁨','#fb923c'],'4':['매우나쁨','#f87171']}[g]||['--','#94a3b8'];}
+
+    function renderResult(data,sName){
+        const lv=getDustLevel(data.pm10,data.pm25);lastMainColor=lv.hex;
+        $('stationBadge').textContent=`📍 ${sName} 관측소 기준`;
+        $('resultIcon').textContent=lv.icon;$('resultGrade').textContent=lv.title;$('resultGrade').style.color=lv.color;
+        $('valPM10').textContent=data.pm10;$('valPM10').style.color=lv.color;$('valPM25').textContent=data.pm25;
+        $('adviceBox').textContent=lv.advice;$('adviceBox').style.borderLeftColor=lv.color;
+        $('valO3').textContent=data.o3;$('valNO2').textContent=data.no2;$('valCO').textContent=data.co;
+        setBadge('gradeO3',gradeToText(data.o3Grade));setBadge('gradeNO2',gradeToText(data.no2Grade));setBadge('gradeCO',gradeToText(data.coGrade));
+        if(data.dataTime!=='--'){$('timeInfo').textContent=`📅 측정: ${data.dataTime}`;$('timeInfo').style.display='block';}
+        $('resultCard').style.display='block';$('detailGrid').style.display='grid';$('chartSection').style.display='block';$('dsLab').style.display='block';
+        drawCurrentChart();updatePreprocess();updateEDA();updateCorrelation();
+        $('resultCard').scrollIntoView({behavior:'smooth',block:'center'});
+    }
+    function setBadge(id,arr){const e=$(id);e.textContent=arr[0];e.style.background=arr[1]+'22';e.style.color=arr[1];}
+
+    $('chartTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;currentTab=b.dataset.tab;$('chartTabs').querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');drawCurrentChart();});
+    function drawCurrentChart(){currentTab==='bar'?drawBarChart():drawTrendChart();}
+    function drawBarChart(){if(currentChart)currentChart.destroy();Chart.defaults.font.family="'Noto Sans KR',sans-serif";currentChart=new Chart($('dustChart'),{type:'bar',data:{labels:['PM10','PM2.5'],datasets:[{label:'µg/m³',data:[parseInt($('valPM10').textContent)||0,parseInt($('valPM25').textContent)||0],backgroundColor:[lastMainColor+'cc','#64748b99'],borderRadius:10,barThickness:50}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e293b',cornerRadius:8,padding:12}},animation:{duration:900,easing:'easeOutQuart'}}});}
+    function drawTrendChart(){if(currentChart)currentChart.destroy();const v=trendData?.filter(d=>d.pm10>0)||[];if(!v.length)return;currentChart=new Chart($('dustChart'),{type:'line',data:{labels:v.map(d=>d.time),datasets:[{label:'PM10',data:v.map(d=>d.pm10),borderColor:'#38bdf8',backgroundColor:'rgba(56,189,248,.1)',fill:true,tension:.4,pointRadius:2,borderWidth:2.5},{label:'PM2.5',data:v.map(d=>d.pm25),borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,.08)',fill:true,tension:.4,pointRadius:2,borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false},ticks:{maxRotation:45,font:{size:10}}}},plugins:{legend:{labels:{color:'#e2e8f0',usePointStyle:true,padding:16}},tooltip:{backgroundColor:'#1e293b',cornerRadius:8,padding:12}},animation:{duration:1000}}});}
+
+    $('dsTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$('dsTabs').querySelectorAll('button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.ds-panel').forEach(p=>p.classList.remove('active'));$('panel-'+b.dataset.panel).classList.add('active');});
+
+    function updatePreprocess(){if(!trendData?.length)return;const tb=$('preprocessBody');tb.innerHTML='';let total=0,bad=0;trendData.forEach(d=>{total++;const r10=d.pm10Raw||String(d.pm10),r25=d.pm25Raw||String(d.pm25);const b10=isNaN(parseInt(r10))||parseInt(r10)<0,b25=isNaN(parseInt(r25))||parseInt(r25)<0;if(b10||b25)bad++;tb.innerHTML+=`<tr><td>${d.time}</td><td>${b10?`<span class="raw-bad">${r10}</span>`:`<span class="raw-ok">${r10}</span>`}</td><td><span class="cleaned">${d.pm10}</span></td><td>${b25?`<span class="raw-bad">${r25}</span>`:`<span class="raw-ok">${r25}</span>`}</td><td><span class="cleaned">${d.pm25}</span></td><td>${(b10||b25)?'🔧 정제':'✅ 정상'}</td></tr>`;});$('preprocessStats').innerHTML=`<div style="display:flex;gap:8px"><div class="stat-card" style="flex:1"><div class="s-label">전체</div><div class="s-value">${total}건</div></div><div class="stat-card" style="flex:1"><div class="s-label">문제</div><div class="s-value" style="color:var(--dust-worst)">${bad}건</div></div><div class="stat-card" style="flex:1"><div class="s-label">정제율</div><div class="s-value" style="color:var(--dust-normal)">${((1-bad/total)*100).toFixed(1)}%</div></div></div>`;}
+
+    function updateEDA(){if(!trendData?.length)return;const v=trendData.filter(d=>d.pm10>0).map(d=>d.pm10);if(!v.length)return;const mean=v.reduce((a,b)=>a+b)/v.length,max=Math.max(...v),min=Math.min(...v),std=Math.sqrt(v.reduce((s,x)=>s+(x-mean)**2,0)/v.length);$('statMean').textContent=mean.toFixed(1);$('statMax').textContent=max;$('statMin').textContent=min;$('statStd').textContent=std.toFixed(1);$('statMean').style.color=getDustLevel(Math.round(mean),0).hex;$('statMax').style.color=getDustLevel(max,0).hex;$('statMin').style.color=getDustLevel(min,0).hex;const ps=[{n:'새벽(0~6)',s:0,e:6},{n:'오전(6~12)',s:6,e:12},{n:'오후(12~18)',s:12,e:18},{n:'저녁(18~24)',s:18,e:24}];const ta=$('timeAnalysis');ta.innerHTML='';const avgs=ps.map(p=>{const pd=trendData.filter(d=>{const h=parseInt(d.time);return h>=p.s&&h<p.e&&d.pm10>0;});return pd.length?pd.reduce((s,d)=>s+d.pm10,0)/pd.length:0;});const mx=Math.max(...avgs,1);ps.forEach((p,i)=>{const avg=avgs[i],pct=(avg/mx*100).toFixed(0),col=getDustLevel(Math.round(avg),0).hex;ta.innerHTML+=`<div class="time-bar"><div class="t-label">${p.n}</div><div class="t-bar-wrap"><div class="t-bar" style="width:${pct}%;background:${col}">${avg.toFixed(0)}</div></div></div>`;});}
+
+    $('btnCompare').addEventListener('click',runCompare);
+    async function runCompare(){const names=[1,2,3].map(i=>$('cmp'+i).value.trim()).filter(Boolean);if(names.length<2){alert("최소 2개!");return;}$('compareStatus').textContent='📡 수집 중...';const res=[];for(const n of names){try{if(isLocal)throw new Error("l");const j=await(await fetch(buildUrl(n,1))).json();if(j.response?.header?.resultCode==="00"&&j.response?.body?.items?.length>0){const it=j.response.body.items[0];res.push({name:n,pm10:parseInt(it.pm10Value)||0,pm25:parseInt(it.pm25Value)||0});}else throw new Error("x");}catch(e){res.push({name:n+'(시연)',pm10:rand(15,120),pm25:rand(5,60)});}}$('compareStatus').textContent='';if(compareChart)compareChart.destroy();compareChart=new Chart($('compareChart'),{type:'bar',data:{labels:res.map(r=>r.name),datasets:[{label:'PM10',data:res.map(r=>r.pm10),backgroundColor:'rgba(56,189,248,.7)',borderRadius:8},{label:'PM2.5',data:res.map(r=>r.pm25),backgroundColor:'rgba(167,139,250,.7)',borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}},plugins:{legend:{labels:{color:'#e2e8f0',usePointStyle:true}},tooltip:{backgroundColor:'#1e293b',cornerRadius:8,padding:12}},animation:{duration:900}}});const best=res.reduce((a,b)=>a.pm10<b.pm10?a:b),worst=res.reduce((a,b)=>a.pm10>b.pm10?a:b);$('compareInsight').innerHTML=`💡 가장 좋은 곳: <b style="color:#4ade80">${best.name}</b>(${best.pm10}), 나쁜 곳: <b style="color:#fb923c">${worst.name}</b>(${worst.pm10}). 차이: <b>${worst.pm10-best.pm10}</b> µg/m³`;}
+
+    function updateCorrelation(){if(!trendData?.length)return;const v=trendData.filter(d=>d.pm10>0&&d.pm25>0);if(v.length<3)return;const x=v.map(d=>d.pm10),y=v.map(d=>d.pm25),r=pearsonR(x,y);if(scatterChartObj)scatterChartObj.destroy();scatterChartObj=new Chart($('scatterChart'),{type:'scatter',data:{datasets:[{label:'PM10 vs PM2.5',data:v.map(d=>({x:d.pm10,y:d.pm25})),backgroundColor:'rgba(56,189,248,.6)',pointRadius:5,pointHoverRadius:8}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{title:{display:true,text:'PM10',color:'#94a3b8'},grid:{color:'rgba(255,255,255,.05)'}},y:{title:{display:true,text:'PM2.5',color:'#94a3b8'},grid:{color:'rgba(255,255,255,.05)'}}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e293b',cornerRadius:8,callbacks:{label:c=>`PM10:${c.parsed.x} PM2.5:${c.parsed.y}`}}},animation:{duration:800}}});$('corrVal').textContent=r.toFixed(3);$('corrVal').style.color=Math.abs(r)>.7?'#4ade80':Math.abs(r)>.4?'#fbbf24':'#fb923c';$('corrDesc').textContent=Math.abs(r)>.7?'강한 양의 상관관계! 두 값이 함께 변합니다.':Math.abs(r)>.4?'중간 수준의 상관관계.':'약한 상관관계.';}
+    function pearsonR(x,y){const n=x.length,mx=x.reduce((a,b)=>a+b)/n,my=y.reduce((a,b)=>a+b)/n;let num=0,dx2=0,dy2=0;for(let i=0;i<n;i++){const dx=x[i]-mx,dy=y[i]-my;num+=dx*dy;dx2+=dx*dx;dy2+=dy*dy;}return dx2&&dy2?num/Math.sqrt(dx2*dy2):0;}
+
+    $('btnGenReport').addEventListener('click',()=>{const ut=$('reportText').value.trim(),v=trendData?.filter(d=>d.pm10>0)||[],pm=v.map(d=>d.pm10),mean=pm.length?pm.reduce((a,b)=>a+b)/pm.length:0,max=pm.length?Math.max(...pm):0,min=pm.length?Math.min(...pm):0,std=pm.length?Math.sqrt(pm.reduce((s,x)=>s+(x-mean)**2,0)/pm.length):0,cr=v.length>=3?pearsonR(v.map(d=>d.pm10),v.map(d=>d.pm25)):0;$('reportSummary').innerHTML=`<p><b>📅</b> ${new Date().toLocaleString('ko-KR')}</p><p><b>📍</b> ${$('stationBadge').textContent}</p><hr style="border:none;border-top:1px solid var(--border-glass);margin:8px 0"><p><b>📐 기초 통계:</b> 평균 ${mean.toFixed(1)} | 최대 ${max} | 최소 ${min} | 표준편차 ${std.toFixed(1)}</p><p><b>🔗 상관분석:</b> r = ${cr.toFixed(3)}</p><hr style="border:none;border-top:1px solid var(--border-glass);margin:8px 0"><p><b>✏️ 나의 해석:</b></p><p>${ut||'(아직 작성되지 않음)'}</p><hr style="border:none;border-top:1px solid var(--border-glass);margin:8px 0"><p style="font-size:.68rem;color:var(--text-sub)">먼지내비 DS 리포트 | K.G.B | Oseong Vibe Coding EduHub</p>`;$('reportPreview').style.display='block';});
+    $('btnCopyReport').addEventListener('click',()=>{navigator.clipboard.writeText($('reportSummary').innerText).then(()=>alert('📋 복사 완료!')).catch(()=>alert('실패'));});
+
+    function showLoading(m){$('loadingBar').textContent=m;$('loadingBar').style.display='block';$('errorBanner').style.display='none';$('resultCard').style.display='none';$('detailGrid').style.display='none';$('chartSection').style.display='none';$('timeInfo').style.display='none';$('dsLab').style.display='none';}
+    function updateLoading(m){$('loadingBar').textContent=m;}
+    function hideLoading(){$('loadingBar').style.display='none';}
     </script>
 </body>
 </html>
